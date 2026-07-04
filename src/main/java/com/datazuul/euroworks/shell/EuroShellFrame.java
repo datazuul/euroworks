@@ -11,6 +11,7 @@ import com.datazuul.euroworks.screensavers.EuroMaze;
 import com.datazuul.euroworks.screensavers.EuroBezier;
 import com.datazuul.euroworks.screensavers.EuroStarfield;
 import com.datazuul.euroworks.games.EuroMines;
+import com.datazuul.euroworks.games.EuroBreakout;
 
 import javax.swing.*;
 import java.awt.*;
@@ -65,7 +66,7 @@ public class EuroShellFrame extends JFrame {
         expressMenu.setFont(expressMenu.getFont().deriveFont(Font.BOLD));
         expressMenu.setForeground(new Color(0, 100, 100)); // Special styling for retro branding
 
-        String[] apps = {"EuroManager", "EuroWrite", "EuroDraw", "EuroCalc", "EuroFile", "EuroDex", "EuroMandelbrot", "EuroPipes", "EuroMaze", "EuroBezier", "EuroStarfield", "EuroMines", "EuroPreferences"};
+        String[] apps = {"EuroManager", "EuroWrite", "EuroDraw", "EuroCalc", "EuroFile", "EuroDex", "EuroMandelbrot", "EuroPipes", "EuroMaze", "EuroBezier", "EuroStarfield", "EuroMines", "EuroBreakout", "EuroPreferences"};
         for (String appName : apps) {
             JMenuItem appItem = new JMenuItem(appName);
             appItem.addActionListener(e -> launchApp(appName));
@@ -138,6 +139,8 @@ public class EuroShellFrame extends JFrame {
             frame = new EuroStarfield();
         } else if ("EuroMines".equals(appName)) {
             frame = new EuroMines();
+        } else if ("EuroBreakout".equals(appName)) {
+            frame = new EuroBreakout();
         } else {
             frame = new EuroMockAppFrame(appName);
         }

@@ -211,44 +211,49 @@ public class EuroPreferences extends EuroAppFrame {
     }
 
     private void syncCurrentState() {
-        JDesktopPane desktop = getDesktopPane();
-        if (desktop != null) {
-            outlineDragCheckBox.setSelected(desktop.getDragMode() == JDesktopPane.OUTLINE_DRAG_MODE);
-            if (desktop instanceof EuroDesktopPane euroDesktop) {
-                Color c = euroDesktop.getDesktopColor();
-                for (int i = 0; i < colors.length; i++) {
-                    if (colors[i].equals(c)) {
-                        colorComboBox.setSelectedIndex(i);
-                        break;
-                    }
-                }
-                enableScreensaverCheckBox.setSelected(euroDesktop.isScreensaverEnabled());
-                screensaverComboBox.setSelectedItem(euroDesktop.getScreensaverName());
-                timeoutSpinner.setValue(euroDesktop.getScreensaverTimeoutSeconds());
-            }
+        // Sync display components from Preferences Store
+        int colorIdx = EuroPreferencesStore.getDesktopColorIndex();
+        if (colorIdx >= 0 && colorIdx < colorNames.length) {
+            colorComboBox.setSelectedIndex(colorIdx);
         }
+        outlineDragCheckBox.setSelected(EuroPreferencesStore.isOutlineDragging());
+        enableSoundCheckBox.setSelected(EuroPreferencesStore.isSoundEnabled());
+        enableScreensaverCheckBox.setSelected(EuroPreferencesStore.isScreensaverEnabled());
+        screensaverComboBox.setSelectedItem(EuroPreferencesStore.getScreensaverName());
+        timeoutSpinner.setValue(EuroPreferencesStore.getScreensaverTimeout());
     }
 
     private void applySettings() {
+        int colorIdx = colorComboBox.getSelectedIndex();
+        boolean outlineDrag = outlineDragCheckBox.isSelected();
+        boolean enableSound = enableSoundCheckBox.isSelected();
+        boolean enableSaver = enableScreensaverCheckBox.isSelected();
+        String saverName = (String) screensaverComboBox.getSelectedItem();
+        int saverTimeout = (Integer) timeoutSpinner.getValue();
+
+        // Save preferences via store
+        EuroPreferencesStore.setDesktopColorIndex(colorIdx);
+        EuroPreferencesStore.setOutlineDragging(outlineDrag);
+        EuroPreferencesStore.setSoundEnabled(enableSound);
+        EuroPreferencesStore.setScreensaverEnabled(enableSaver);
+        EuroPreferencesStore.setScreensaverName(saverName);
+        EuroPreferencesStore.setScreensaverTimeout(saverTimeout);
+        EuroPreferencesStore.save();
+
+        // Apply dynamically to currently running desktop pane
         JDesktopPane desktop = getDesktopPane();
         if (desktop != null) {
-            // Apply mouse dragging preference
-            boolean useOutline = outlineDragCheckBox.isSelected();
-            desktop.setDragMode(useOutline ? JDesktopPane.OUTLINE_DRAG_MODE : JDesktopPane.LIVE_DRAG_MODE);
-
-            // Apply display settings
-            int index = colorComboBox.getSelectedIndex();
+            desktop.setDragMode(outlineDrag ? JDesktopPane.OUTLINE_DRAG_MODE : JDesktopPane.LIVE_DRAG_MODE);
             if (desktop instanceof EuroDesktopPane euroDesktop) {
-                if (index >= 0 && index < colors.length) {
-                    euroDesktop.setDesktopColor(colors[index]);
+                if (colorIdx >= 0 && colorIdx < colors.length) {
+                    euroDesktop.setDesktopColor(colors[colorIdx]);
                 }
-                // Apply screensaver settings
-                euroDesktop.setScreensaverEnabled(enableScreensaverCheckBox.isSelected());
-                euroDesktop.setScreensaverName((String) screensaverComboBox.getSelectedItem());
-                euroDesktop.setScreensaverTimeoutSeconds((Integer) timeoutSpinner.getValue());
+                euroDesktop.setScreensaverEnabled(enableSaver);
+                euroDesktop.setScreensaverName(saverName);
+                euroDesktop.setScreensaverTimeoutSeconds(saverTimeout);
             } else {
-                if (index >= 0 && index < colors.length) {
-                    desktop.setBackground(colors[index]);
+                if (colorIdx >= 0 && colorIdx < colors.length) {
+                    desktop.setBackground(colors[colorIdx]);
                     desktop.repaint();
                 }
             }

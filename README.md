@@ -23,6 +23,7 @@
 * **EuroManager (File Manager)**: A vintage file tree navigator with lazy-loaded drive/directory structures and double-click navigation.
 * **EuroMandelbrot (Fractal Explorer)**: An advanced multi-pass progressive refinement fractal renderer (16x16 down to 1x1 block passes) with interactive drag-zoom and retro color palettes (Rainbow, Fire, Ice-Blue, Original GEOS Rings).
 * **EuroMines (Minesweeper)**: A pixel-perfect classic Minesweeper game featuring custom 3D bevels, 3-digit LED displays, first-click mine safety, flag markings, cascading cell reveals, and difficulty settings (Beginner, Intermediate, Expert).
+* **EuroBreakout (Classic Breakout)**: An authentic replica of the 1976 arcade game. Features 8 colored rows of bricks, smooth mouse-motion/keyboard paddle tracking, 5-lives serve logic, and sound blips.
 * **EuroPreferences (Control Panel)**: Settings center to customize desktop backgrounds, toggle Speaker Emulation, outline window dragging, and configure screensavers.
 * **Retro Mock Applications**: Authentic mocks of classic suites like `EuroWrite`, `EuroDraw`, `EuroCalc`, and `EuroFile`.
 

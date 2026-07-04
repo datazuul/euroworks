@@ -200,6 +200,11 @@ public class EuroMines extends EuroAppFrame {
         }
 
         gameMenu.addSeparator();
+        JMenuItem highscoresItem = new JMenuItem("Bestenliste...");
+        highscoresItem.addActionListener(e -> showHighScoresDialog());
+        gameMenu.add(highscoresItem);
+
+        gameMenu.addSeparator();
         JMenuItem exitItem = new JMenuItem("Beenden");
         exitItem.addActionListener(e -> dispose());
         gameMenu.add(exitItem);
@@ -416,7 +421,63 @@ public class EuroMines extends EuroAppFrame {
             }
             lblMinesLED.setText("000");
             gridPanel.repaint();
+            checkAndPromptHighScore();
         }
+    }
+
+    private void checkAndPromptHighScore() {
+        if (timeElapsed <= 0) return;
+        String key = "EuroMines_" + currentDifficulty.name;
+        HighScore hs = new HighScore(key);
+        java.util.List<HighScore.ScoreEntry> scores = hs.getScores();
+        boolean qualifies = false;
+        if (scores.size() < 10) {
+            qualifies = true;
+        } else {
+            if (timeElapsed < scores.get(9).score) {
+                qualifies = true;
+            }
+        }
+        if (qualifies) {
+            SwingUtilities.invokeLater(() -> {
+                String username = JOptionPane.showInputDialog(this,
+                    "Glückwunsch! Neuer Rekord für " + currentDifficulty.name + ": " + timeElapsed + " Sekunden\nBitte Name eingeben:",
+                    "Neuer Rekord",
+                    JOptionPane.PLAIN_MESSAGE
+                );
+                if (username != null && !username.trim().isEmpty()) {
+                    try {
+                        hs.setHighScore(timeElapsed, username.trim(), timeElapsed);
+                        showHighScoresDialog();
+                    } catch (java.io.IOException ex) {
+                        JOptionPane.showMessageDialog(this, "Fehler beim Speichern des Highscores.", "Fehler", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            });
+        }
+    }
+
+    private void showHighScoresDialog() {
+        String key = "EuroMines_" + currentDifficulty.name;
+        HighScore hs = new HighScore(key);
+        java.util.List<HighScore.ScoreEntry> scores = hs.getScores();
+        StringBuilder sb = new StringBuilder();
+        sb.append("EuroMines ").append(currentDifficulty.name).append(" Bestenliste (Top 10):\n\n");
+        if (scores.isEmpty()) {
+            sb.append("Keine Einträge vorhanden.");
+        } else {
+            int limit = Math.min(10, scores.size());
+            for (int i = 0; i < limit; i++) {
+                HighScore.ScoreEntry entry = scores.get(i);
+                sb.append(String.format("%d. %s - %d Sekunden (%s)\n",
+                    (i + 1),
+                    entry.username,
+                    entry.score,
+                    new java.text.SimpleDateFormat("dd.MM.yyyy HH:mm").format(entry.date)
+                ));
+            }
+        }
+        JOptionPane.showMessageDialog(this, sb.toString(), "Bestenliste", JOptionPane.INFORMATION_MESSAGE);
     }
 
     // ── Grid Panel Custom Painting ──────────────────────────────────────────
