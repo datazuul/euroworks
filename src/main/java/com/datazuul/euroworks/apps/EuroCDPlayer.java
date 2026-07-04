@@ -45,7 +45,8 @@ public class EuroCDPlayer extends EuroAppFrame {
         int cdio_get_track_sec_count(com.sun.jna.Pointer p, int i_track);
         int cdio_get_track_lba(com.sun.jna.Pointer p, int i_track);
         int cdio_read_audio_sectors(com.sun.jna.Pointer p, byte[] p_buf, int i_lsn, int i_sectors);
-        int cdio_eject_media(com.sun.jna.Pointer p);
+        // cdio_eject_media takes CdIo_t** (pointer-to-pointer): it frees and nulls the handle
+        int cdio_eject_media(com.sun.jna.ptr.PointerByReference pp_cdio);
     }
 
     private static boolean libCdioAvailable = false;
@@ -110,6 +111,9 @@ public class EuroCDPlayer extends EuroAppFrame {
     private volatile boolean audioStopRequested = false;
     private javax.sound.sampled.SourceDataLine audioLine = null;
 
+    /** Polls every 3 s for disc insertion while in NO_CD state. */
+    private final Timer discDetectionTimer;
+
     public EuroCDPlayer() {
         super("CD Player");
         setSize(WIDTH, HEIGHT);
@@ -144,8 +148,24 @@ public class EuroCDPlayer extends EuroAppFrame {
             }
         });
 
+        // Disc insertion polling timer: checks every 3 seconds when no disc is present
+        discDetectionTimer = new Timer(3000, e -> {
+            if (state == PlayerState.NO_CD) {
+                loadCD();
+                if (state != PlayerState.NO_CD) {
+                    // Disc found – stop polling and refresh UI
+                    ((Timer) e.getSource()).stop();
+                    repaintPanels();
+                }
+            }
+        });
+
         // Detect and load CD tracks on startup
         loadCD();
+        // Start polling if no disc detected on startup
+        if (state == PlayerState.NO_CD) {
+            discDetectionTimer.start();
+        }
 
         // Layout panels
         JPanel content = new JPanel(new BorderLayout());
@@ -330,12 +350,73 @@ public class EuroCDPlayer extends EuroAppFrame {
     }
 
     private File detectCdDrive() {
-        File d = new File("D:\\");
-        if (hasCdaFiles(d)) return d;
+        String os = System.getProperty("os.name").toLowerCase();
 
-        for (char c = 'E'; c <= 'Z'; c++) {
-            File f = new File(c + ":\\");
-            if (hasCdaFiles(f)) return f;
+        if (os.contains("win")) {
+            // Windows: try drive letters D: through Z:
+            for (char c = 'D'; c <= 'Z'; c++) {
+                File f = new File(c + ":\\");
+                if (hasCdaFiles(f)) return f;
+            }
+
+        } else if (os.contains("linux")) {
+            // Linux: common fixed CD/DVD mount points
+            String[] linuxPaths = {
+                "/media/cdrom", "/media/cdrom0", "/media/cdrom1",
+                "/media/dvd",   "/media/dvd0",   "/media/cdrecorder",
+                "/mnt/cdrom",   "/mnt/cdrom0",   "/mnt/cd",
+                "/mnt/dvd",     "/mnt/cdrecorder"
+            };
+            for (String path : linuxPaths) {
+                File f = new File(path);
+                if (hasCdaFiles(f)) return f;
+            }
+            // Modern Linux (udisks2): /run/media/<username>/<disc-label>/
+            File runMedia = new File("/run/media");
+            if (runMedia.exists() && runMedia.isDirectory()) {
+                File[] userDirs = runMedia.listFiles();
+                if (userDirs != null) {
+                    for (File userDir : userDirs) {
+                        if (userDir.isDirectory()) {
+                            File[] discDirs = userDir.listFiles();
+                            if (discDirs != null) {
+                                for (File disc : discDirs) {
+                                    if (hasCdaFiles(disc)) return disc;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            // Also check /media/<username>/<disc-label>/ (some distros)
+            File mediaRoot = new File("/media");
+            if (mediaRoot.exists() && mediaRoot.isDirectory()) {
+                File[] userDirs = mediaRoot.listFiles();
+                if (userDirs != null) {
+                    for (File userDir : userDirs) {
+                        if (userDir.isDirectory() && !userDir.getName().startsWith("cd")) {
+                            File[] discDirs = userDir.listFiles();
+                            if (discDirs != null) {
+                                for (File disc : discDirs) {
+                                    if (hasCdaFiles(disc)) return disc;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+        } else if (os.contains("mac")) {
+            // macOS: all volumes appear under /Volumes/
+            File volumes = new File("/Volumes");
+            if (volumes.exists() && volumes.isDirectory()) {
+                File[] vols = volumes.listFiles();
+                if (vols != null) {
+                    for (File vol : vols) {
+                        if (hasCdaFiles(vol)) return vol;
+                    }
+                }
+            }
         }
         return null;
     }
@@ -527,9 +608,13 @@ public class EuroCDPlayer extends EuroAppFrame {
         } else {
             if (libCdioAvailable && activeCdio != null) {
                 stopCD();
-                LibCdio.INSTANCE.cdio_eject_media(activeCdio);
-                LibCdio.INSTANCE.cdio_destroy(activeCdio);
-                activeCdio = null;
+                // cdio_eject_media takes a pointer-to-pointer; it ejects AND frees the handle
+                com.sun.jna.ptr.PointerByReference pbr = new com.sun.jna.ptr.PointerByReference(activeCdio);
+                LibCdio.INSTANCE.cdio_eject_media(pbr);
+                activeCdio = null; // handle is now freed by cdio_eject_media
+            } else if (!libCdioAvailable) {
+                // libcdio not available – stop playback only
+                stopAudioThread();
             }
             state = PlayerState.NO_CD;
             trackDurations = new int[0];
@@ -538,6 +623,10 @@ public class EuroCDPlayer extends EuroAppFrame {
             trackElapsed = 0;
             playTimer.stop();
             stopAudioThread();
+            // Start polling for the next disc insertion
+            if (!discDetectionTimer.isRunning()) {
+                discDetectionTimer.start();
+            }
 
         }
         repaintPanels();
@@ -869,6 +958,7 @@ public class EuroCDPlayer extends EuroAppFrame {
 
     @Override
     public void dispose() {
+        discDetectionTimer.stop();
         playTimer.stop();
         stopAudioThread();
         if (libCdioAvailable && activeCdio != null) {
