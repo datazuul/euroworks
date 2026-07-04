@@ -128,12 +128,6 @@ public class EuroTaskbar extends JPanel {
 
     // ── Launcher ──────────────────────────────────────────────────────────────
 
-    private static final String[] APP_NAMES = {
-        "EuroManager", "EuroWrite", "EuroDraw", "EuroCalc",
-        "EuroFile", "EuroDex", "EuroMandelbrot",
-        "EuroPipes", "EuroMaze", "EuroBezier", "EuroStarfield", "EuroMines", "EuroBreakout", "EuroPreferences"
-    };
-
     private JButton buildLauncherButton() {
         JButton btn = new JButton("≡  Express");
         btn.setFont(new Font("SansSerif", Font.BOLD, 11));
@@ -163,7 +157,7 @@ public class EuroTaskbar extends JPanel {
     private void rebuildLauncherPopup() {
         launcherPopup = new JPopupMenu() {
             @Override protected void paintBorder(Graphics g) {
-                // Win95 popup: 1px black border + inner white highlight
+                // Win95 popup: 1px black border
                 g.setColor(Color.BLACK);
                 g.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
             }
@@ -172,11 +166,50 @@ public class EuroTaskbar extends JPanel {
         launcherPopup.setBorderPainted(true);
         launcherPopup.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
 
-        for (String appName : APP_NAMES) {
-            launcherPopup.add(buildMenuItem(appName, appName));
-        }
+        // ── 1. Programs (Submenu) ───────────────────────────────────────────
+        JMenu programsMenu = buildSubMenu("Programs");
+
+        // ── 1a. Games (Submenu)
+        JMenu gamesMenu = buildSubMenu("Games");
+        gamesMenu.add(buildMenuItem("EuroMines", "EuroMines"));
+        gamesMenu.add(buildMenuItem("EuroBreakout", "EuroBreakout"));
+        gamesMenu.add(buildMenuItem("EuroInvaders", "EuroInvaders"));
+        programsMenu.add(gamesMenu);
+
+        // ── 1b. Office (Submenu)
+        JMenu officeMenu = buildSubMenu("Office");
+        officeMenu.add(buildMenuItem("EuroWrite", "EuroWrite"));
+        officeMenu.add(buildMenuItem("EuroDraw", "EuroDraw"));
+        officeMenu.add(buildMenuItem("EuroCalc", "EuroCalc"));
+        officeMenu.add(buildMenuItem("EuroFile", "EuroFile"));
+        programsMenu.add(officeMenu);
+
+        // ── 1c. Organize (Submenu)
+        JMenu organizeMenu = buildSubMenu("Organize");
+        organizeMenu.add(buildMenuItem("EuroManager", "EuroManager"));
+        organizeMenu.add(buildMenuItem("EuroDex", "EuroDex"));
+        organizeMenu.add(buildMenuItem("EuroMandelbrot", "EuroMandelbrot"));
+        organizeMenu.add(buildMenuItem("CD Player", "EuroCDPlayer"));
+        organizeMenu.addSeparator();
+        organizeMenu.add(buildMenuItem("EuroPipes", "EuroPipes"));
+        organizeMenu.add(buildMenuItem("EuroMaze", "EuroMaze"));
+        organizeMenu.add(buildMenuItem("EuroBezier", "EuroBezier"));
+        organizeMenu.add(buildMenuItem("EuroStarfield", "EuroStarfield"));
+        programsMenu.add(organizeMenu);
+
+        launcherPopup.add(programsMenu);
+
         launcherPopup.addSeparator();
-        launcherPopup.add(buildMenuItem("Shut Down…", "__EXIT__"));
+
+        // ── 2. Settings (Submenu) ───────────────────────────────────────────
+        JMenu settingsMenu = buildSubMenu("Settings");
+        settingsMenu.add(buildMenuItem("EuroPreferences", "EuroPreferences"));
+        launcherPopup.add(settingsMenu);
+
+        launcherPopup.addSeparator();
+
+        // ── 3. Shut Down... ─────────────────────────────────────────────────
+        launcherPopup.add(buildMenuItem("Shut Down...", "__EXIT__"));
     }
 
     private JMenuItem buildMenuItem(String label, String command) {
@@ -212,6 +245,63 @@ public class EuroTaskbar extends JPanel {
             }
         });
         return item;
+    }
+
+    private JMenu buildSubMenu(String label) {
+        JMenu menu = new JMenu(label) {
+            @Override protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                boolean active = isSelected() || isPopupMenuVisible();
+                if (active) {
+                    g2.setColor(SEL_BG);
+                    g2.fillRect(0, 0, getWidth(), getHeight());
+                    g2.setColor(SEL_FG);
+                } else {
+                    g2.setColor(SILVER);
+                    g2.fillRect(0, 0, getWidth(), getHeight());
+                    g2.setColor(Color.BLACK);
+                }
+
+                // Draw 12x10 pixelated retro folder icon
+                int ix = 6;
+                int iy = (getHeight() - 10) / 2;
+                
+                // Draw back tab and main border outline in dark brown/yellow
+                g2.setColor(new Color(150, 110, 40));
+                g2.drawRect(ix, iy, 4, 2);
+                g2.drawRect(ix, iy + 2, 11, 7);
+                
+                // Fill main body with retro yellow/cream
+                g2.setColor(new Color(252, 210, 95));
+                g2.fillRect(ix + 1, iy + 1, 3, 1);
+                g2.fillRect(ix + 1, iy + 3, 10, 6);
+                
+                // Front flap outline crease for depth overlap look
+                g2.setColor(new Color(200, 150, 50));
+                g2.drawLine(ix + 1, iy + 4, ix + 10, iy + 4);
+
+                // Draw menu label text (re-establish active/inactive text color)
+                g2.setColor(active ? SEL_FG : Color.BLACK);
+                g2.setFont(getFont());
+                FontMetrics fm = g2.getFontMetrics();
+                g2.drawString(getText(), 24, (getHeight() + fm.getAscent() - fm.getDescent()) / 2);
+
+                // Submenu right-arrow marker
+                int h = getHeight();
+                int[] xPoints = { getWidth() - 12, getWidth() - 12, getWidth() - 6 };
+                int[] yPoints = { h / 2 - 4, h / 2 + 4, h / 2 };
+                g2.fillPolygon(xPoints, yPoints, 3);
+                g2.dispose();
+            }
+        };
+        menu.setFont(new Font("SansSerif", Font.PLAIN, 11));
+        menu.setBackground(SILVER);
+        menu.setBorderPainted(false);
+        menu.setOpaque(false);
+        menu.setPreferredSize(new Dimension(170, 20));
+        menu.getPopupMenu().setBackground(SILVER);
+        menu.getPopupMenu().setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        return menu;
     }
 
     // ── Task buttons ──────────────────────────────────────────────────────────
