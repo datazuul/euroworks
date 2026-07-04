@@ -131,7 +131,7 @@ public class EuroTaskbar extends JPanel {
     private static final String[] APP_NAMES = {
         "EuroManager", "EuroWrite", "EuroDraw", "EuroCalc",
         "EuroFile", "EuroDex", "EuroMandelbrot",
-        "EuroPipes", "EuroMaze", "EuroBezier", "EuroStarfield", "EuroPreferences"
+        "EuroPipes", "EuroMaze", "EuroBezier", "EuroStarfield", "EuroMines", "EuroPreferences"
     };
 
     private JButton buildLauncherButton() {
