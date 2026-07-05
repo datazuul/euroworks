@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 80" width="300" height="80">
+  <defs>
+    <!-- Star definition (Scale 1.5x larger, radius 6px) -->
+    <polygon id="star" points="0,-6 1.8,-1.8 6,-1.8 2.7,0.9 3.9,5.1 0,2.7 -3.9,5.1 -2.7,0.9 -6,-1.8 -1.8,-1.8" fill="#ffeb3b"/>
+  </defs>
+
+  <!-- Star Circle wrapping the 'E' with radius 31px -->
+  <g transform="translate(45, 32)">
+    <!-- The E in the center (aligned on baseline Y=48, offset Y=16 from circle center Y=32) -->
+    <text x="0" y="16" font-family="'Segoe UI', -apple-system, sans-serif" font-weight="900" font-size="44" font-style="italic" fill="#60a5fa" text-anchor="middle">E</text>
+    
+    <!-- 10 Stars wrapping E with 31px radius -->
+    <use href="#star" x="0" y="-31" />
+    <use href="#star" x="15.5" y="-26.85" />
+    <use href="#star" x="26.85" y="-15.5" />
+    <use href="#star" x="-15.5" y="-26.85" />
+    <use href="#star" x="-26.85" y="-15.5" />
+    <use href="#star" x="-31" y="0" />
+    <use href="#star" x="-26.85" y="15.5" />
+    <use href="#star" x="-15.5" y="26.85" />
+    <use href="#star" x="0" y="31" />
+    <use href="#star" x="15.5" y="26.85" />
+  </g>
+
+  <!-- The rest of the text "uroWorks" aligned on baseline Y=48, flat on one line, solid pastel fills -->
+  <text x="56" y="48" font-family="'Segoe UI', -apple-system, sans-serif" font-weight="900" font-size="38" font-style="italic"><tspan fill="#60a5fa">uro</tspan><tspan fill="#93c5fd">Works</tspan></text>
+</svg>

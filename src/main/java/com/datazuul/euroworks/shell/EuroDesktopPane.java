@@ -1,6 +1,7 @@
 package com.datazuul.euroworks.shell;
 
 import com.datazuul.euroworks.apps.EuroPreferencesStore;
+import com.formdev.flatlaf.extras.FlatSVGIcon;
 import javax.swing.JDesktopPane;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -9,6 +10,7 @@ public class EuroDesktopPane extends JDesktopPane {
 
     private static final Color RETRO_TEAL = new Color(0, 128, 128);
     private Color customColor = RETRO_TEAL;
+    private final FlatSVGIcon logoIcon;
 
     private boolean screensaverEnabled = true;
     private String screensaverName = "EuroPipes";
@@ -17,6 +19,9 @@ public class EuroDesktopPane extends JDesktopPane {
     public EuroDesktopPane() {
         // Load settings from persistent preferences store
         EuroPreferencesStore.load();
+
+        // Load branding logo
+        logoIcon = new FlatSVGIcon("themes/euro/icons/euroworks_logo.svg", 300, 80);
 
         // Apply color
         int colorIdx = EuroPreferencesStore.getDesktopColorIndex();
@@ -82,5 +87,12 @@ public class EuroDesktopPane extends JDesktopPane {
         // Paint the background solid custom color
         g.setColor(customColor);
         g.fillRect(0, 0, getWidth(), getHeight());
+
+        // Paint centered branding logo
+        if (logoIcon != null) {
+            int lx = (getWidth() - logoIcon.getIconWidth()) / 2;
+            int ly = (getHeight() - logoIcon.getIconHeight()) / 2;
+            logoIcon.paintIcon(this, g, lx, ly);
+        }
     }
 }
