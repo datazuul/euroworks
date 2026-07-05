@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
+  <circle cx="8" cy="8" r="7" fill="#ebf8ff" stroke="#3182ce" stroke-width="1.2"/>
+  <!-- Globe lines -->
+  <ellipse cx="8" cy="8" rx="7" ry="2.5" fill="none" stroke="#63b3ed" stroke-width="0.8"/>
+  <ellipse cx="8" cy="8" rx="2.5" ry="7" fill="none" stroke="#63b3ed" stroke-width="0.8"/>
+  <line x1="1" y1="8" x2="15" y2="8" stroke="#63b3ed" stroke-width="0.8"/>
+  <line x1="8" y1="1" x2="8" y2="15" stroke="#63b3ed" stroke-width="0.8"/>
+  <!-- Arrow pointer (Cursor) -->
+  <path d="M10 10 L15 12 L12 15 Z" fill="#2d3748" stroke="#ffffff" stroke-width="0.5"/>
+</svg>

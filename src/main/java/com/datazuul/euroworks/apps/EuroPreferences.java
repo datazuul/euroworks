@@ -23,6 +23,7 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
+import javax.swing.JInternalFrame;
 
 import com.datazuul.euroworks.shell.EuroDesktopPane;
 
@@ -41,6 +42,10 @@ public class EuroPreferences extends EuroAppFrame {
             new Color(130, 40, 40) // Dark Red
     };
     private final String[] colorNames = { "Retro Teal", "Navy Blue", "VGA Gray", "Forest Green", "Dark Red" };
+
+    private final JComboBox<String> themeComboBox;
+    private final String[] themeNames = { "Euro (SVG)", "Windows 95 (Hybrid)", "Vector (Built-in)" };
+    private final String[] themeValues = { "euro", "win95", "vector" };
 
     // Mouse Card components
     private final JCheckBox outlineDragCheckBox;
@@ -93,6 +98,18 @@ public class EuroPreferences extends EuroAppFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
         displayCard.add(colorComboBox, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.weightx = 0.0;
+        displayCard.add(new JLabel("Icon Theme:"), gbc);
+
+        themeComboBox = new JComboBox<>(themeNames);
+        gbc.gridx = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
+        displayCard.add(themeComboBox, gbc);
 
         // 2. Mouse Card
         JPanel mouseCard = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
@@ -221,6 +238,15 @@ public class EuroPreferences extends EuroAppFrame {
         enableScreensaverCheckBox.setSelected(EuroPreferencesStore.isScreensaverEnabled());
         screensaverComboBox.setSelectedItem(EuroPreferencesStore.getScreensaverName());
         timeoutSpinner.setValue(EuroPreferencesStore.getScreensaverTimeout());
+
+        // Sync icon theme
+        String activeTheme = EuroPreferencesStore.getIconThemeName();
+        for (int i = 0; i < themeValues.length; i++) {
+            if (themeValues[i].equalsIgnoreCase(activeTheme)) {
+                themeComboBox.setSelectedIndex(i);
+                break;
+            }
+        }
     }
 
     private void applySettings() {
@@ -238,7 +264,15 @@ public class EuroPreferences extends EuroAppFrame {
         EuroPreferencesStore.setScreensaverEnabled(enableSaver);
         EuroPreferencesStore.setScreensaverName(saverName);
         EuroPreferencesStore.setScreensaverTimeout(saverTimeout);
+
+        int themeIdx = themeComboBox.getSelectedIndex();
+        if (themeIdx >= 0 && themeIdx < themeValues.length) {
+            EuroPreferencesStore.setIconThemeName(themeValues[themeIdx]);
+        }
         EuroPreferencesStore.save();
+
+        // Clear icon cache so new theme is loaded
+        com.datazuul.euroworks.shell.EuroIconThemeManager.clearCache();
 
         // Apply dynamically to currently running desktop pane
         JDesktopPane desktop = getDesktopPane();
@@ -254,9 +288,18 @@ public class EuroPreferences extends EuroAppFrame {
             } else {
                 if (colorIdx >= 0 && colorIdx < colors.length) {
                     desktop.setBackground(colors[colorIdx]);
-                    desktop.repaint();
                 }
             }
+
+            // Force dynamic icon updates on all running frames
+            for (JInternalFrame f : desktop.getAllFrames()) {
+                if (f instanceof EuroAppFrame) {
+                    ((EuroAppFrame) f).updateTitleBarIcon();
+                }
+                f.revalidate();
+                f.repaint();
+            }
+            desktop.repaint();
         }
     }
 }

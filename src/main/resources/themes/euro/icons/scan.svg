@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
+  <!-- Scanner bed with a scanning light beam -->
+  <rect x="1.5" y="4" width="13" height="9" rx="1" fill="#cbd5e0" stroke="#4a5568" stroke-width="0.8"/>
+  <rect x="3" y="5.5" width="10" height="6" fill="#2d3748"/>
+  <!-- Scan head line -->
+  <line x1="6.5" y1="5.5" x2="6.5" y2="11.5" stroke="#38b2ac" stroke-width="1.5"/>
+  <!-- Cover lid -->
+  <path d="M2 4 L14 4 L12 1.5 L4 1.5 Z" fill="#718096" stroke="#4a5568" stroke-width="0.8"/>
+</svg>

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
+  <!-- A grid maze layout -->
+  <rect x="1" y="1" width="14" height="14" rx="1.5" fill="#ffffff" stroke="#2d3748" stroke-width="1"/>
+  <path d="M4 1v4h4v-2 M1 8h6v3M12 4v8h-3 M8 15v-3" fill="none" stroke="#2d3748" stroke-width="1"/>
+  <circle cx="2.5" cy="2.5" r="1" fill="#e53e3e"/>
+  <circle cx="13.5" cy="13.5" r="1" fill="#38a169"/>
+</svg>

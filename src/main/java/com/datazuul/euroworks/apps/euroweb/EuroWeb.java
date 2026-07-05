@@ -178,34 +178,8 @@ public class EuroWeb extends EuroAppFrame {
     }
 
     private JButton buildRetroNavButton(String label) {
-        JButton btn = new JButton(label);
+        JButton btn = new com.datazuul.euroworks.ui.EuroButton(label, RETRO_BG, Color.BLACK);
         btn.setFont(new Font("Courier New", Font.BOLD, 11));
-        btn.setBackground(RETRO_BG);
-        btn.setForeground(Color.BLACK);
-        btn.setOpaque(true);
-        btn.setFocusPainted(false);
-        
-        Border raised = BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED);
-        Border empty = BorderFactory.createEmptyBorder(3, 8, 3, 8);
-        btn.setBorder(BorderFactory.createCompoundBorder(raised, empty));
-
-        btn.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mousePressed(java.awt.event.MouseEvent e) {
-                if (btn.isEnabled()) {
-                    btn.setBorder(BorderFactory.createCompoundBorder(
-                            BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.LOWERED), empty));
-                }
-            }
-            @Override
-            public void mouseReleased(java.awt.event.MouseEvent e) {
-                if (btn.isEnabled()) {
-                    btn.setBorder(BorderFactory.createCompoundBorder(
-                            BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED), empty));
-                }
-            }
-        });
-
         return btn;
     }
 

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
+  <path d="M2.5 1h7l4 4v10H2.5z" fill="#ffffff" stroke="#4a5568" stroke-width="1"/>
+  <path d="M9.5 1v4h4" fill="none" stroke="#4a5568" stroke-width="1"/>
+  <!-- Lines of text -->
+  <line x1="4" y1="6" x2="8" y2="6" stroke="#a0aec0" stroke-width="1"/>
+  <line x1="4" y1="9" x2="12" y2="9" stroke="#718096" stroke-width="1"/>
+  <line x1="4" y1="11" x2="12" y2="11" stroke="#718096" stroke-width="1"/>
+</svg>

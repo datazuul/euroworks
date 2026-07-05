@@ -1,0 +1,10 @@
+[Icon Theme]
+Name=Euro
+Comment=EuroWorks Realistic SVG Icon Theme
+Directories=icons
+
+[icons]
+Size=16
+Type=Scalable
+MinSize=8
+MaxSize=512

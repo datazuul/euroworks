@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
+  <!-- Top Left: Red -->
+  <path d="M2 3 C4 2.2, 6 3.8, 7.5 3 L7.5 8 C6 8.8, 4 7.2, 2 8 Z" fill="#f56565"/>
+  <!-- Top Right: Green -->
+  <path d="M8.5 3 C10 2.2, 12 3.8, 14 3 L14 8 C12 8.8, 10 7.2, 8.5 8 Z" fill="#48bb78"/>
+  <!-- Bottom Left: Blue -->
+  <path d="M2 8.5 C4 7.7, 6 9.3, 7.5 8.5 L7.5 13.5 C6 14.3, 4 12.7, 2 13.5 Z" fill="#4299e1"/>
+  <!-- Bottom Right: Yellow -->
+  <path d="M8.5 8.5 C10 7.7, 12 9.3, 14 8.5 L14 13.5 C12 14.3, 10 12.7, 8.5 13.5 Z" fill="#ecc94b"/>
+</svg>

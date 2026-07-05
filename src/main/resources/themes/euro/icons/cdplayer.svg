@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
+  <circle cx="8" cy="8" r="7" fill="#cbd5e0" stroke="#a0aec0" stroke-width="0.8"/>
+  <!-- Rainbow reflection segments -->
+  <path d="M8 8 L14 5 A7 7 0 0 1 15 8 Z" fill="#feb2b2" opacity="0.45"/>
+  <path d="M8 8 L11 14 A7 7 0 0 1 8 15 Z" fill="#90cdf4" opacity="0.45"/>
+  <path d="M8 8 L2 11 A7 7 0 0 1 1 8 Z" fill="#cbd5e0" opacity="0.45"/>
+  <circle cx="8" cy="8" r="2.5" fill="#edf2f7" stroke="#cbd5e0" stroke-width="0.5"/>
+  <circle cx="8" cy="8" r="1" fill="#718096"/>
+</svg>

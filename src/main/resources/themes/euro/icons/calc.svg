@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
+  <rect x="1.5" y="1" width="13" height="14" rx="1.5" fill="#e2e8f0" stroke="#718096" stroke-width="1"/>
+  <rect x="3" y="2.5" width="10" height="3.5" fill="#319795" rx="0.5"/>
+  <!-- Keypad dots/squares -->
+  <rect x="3" y="7.5" width="2" height="1.5" fill="#4a5568" rx="0.3"/>
+  <rect x="6.5" y="7.5" width="2" height="1.5" fill="#4a5568" rx="0.3"/>
+  <rect x="10" y="7.5" width="2" height="1.5" fill="#ed8936" rx="0.3"/>
+  <rect x="3" y="10" width="2" height="1.5" fill="#4a5568" rx="0.3"/>
+  <rect x="6.5" y="10" width="2" height="1.5" fill="#4a5568" rx="0.3"/>
+  <rect x="10" y="10" width="2" height="1.5" fill="#4a5568" rx="0.3"/>
+  <rect x="3" y="12.5" width="2" height="1.5" fill="#4a5568" rx="0.3"/>
+  <rect x="6.5" y="12.5" width="2" height="1.5" fill="#4a5568" rx="0.3"/>
+  <rect x="10" y="12.5" width="2" height="1.5" fill="#4a5568" rx="0.3"/>
+</svg>

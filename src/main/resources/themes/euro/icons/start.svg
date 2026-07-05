@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" height="16" viewBox="0 -960 960 960" width="16">
+  <!-- Large Flame (Red/Orange) -->
+  <path d="M 157 -321 q 35 -35 85.5 -35.5 T 328 -322 q 35 35 34.5 85.5 T 327 -151 q -25 25 -83.5 43 T 82 -76 q 14 -103 32 -161.5 t 43 -83.5 Z" fill="#f56565" />
+  
+  <!-- Inner Flame Core (Yellow/Orange) -->
+  <path d="M 214 -265 q -10 10 -20 36.5 T 180 -175 q 27 -4 53.5 -13.5 T 270 -208 q 12 -12 13 -29 t -11 -29 q -12 -12 -29 -11.5 T 214 -265 Z" fill="#ecc94b" />
+
+  <!-- Left Fin Wing (Red) -->
+  <path d="M 226 -559 l 78 33 q 14 -28 29 -54 t 33 -52 l -56 -11 l -84 84 Z" fill="#e53e3e" />
+  
+  <!-- Right Fin Wing (Red) -->
+  <path d="M 565 -220 l 84 -84 l -11 -56 q -26 18 -52 32.5 T 532 -299 l 33 79 Z" fill="#e53e3e" />
+
+  <!-- Main Body Outlines & Boosters (Deep Navy Blue instead of black) -->
+  <path d="M 878 -873 q 19 121 -23.5 235.5 T 708 -419 l 20 99 q 4 20 -2 39 t -20 33 L 538 -80 l -84 -197 l -171 -171 l -197 -84 l 167 -168 q 14 -14 33.5 -20 t 39.5 -2 l 99 20 q 104 -104 218 -147 t 235 -24 Z" fill="#0d47a1" />
+
+  <!-- Cylindrical Rocket Body (Royal Blue) -->
+  <path d="M 368 -476 l 114 113 q 42 -16 90 -49 t 90 -75 q 70 -70 109.5 -155.5 T 806 -800 q -72 -5 -158 34.5 T 492 -656 q -42 42 -75 90 t -49 90 Z" fill="#3182ce" />
+
+  <!-- Cabin Window (Yellow) -->
+  <path d="M 523 -597.5 q 0 -33.5 23 -56.5 t 57 -23 q 34 0 57 23 t 23 56.5 q 0 33.5 -23 56.5 t -57 23 q -34 0 -57 -23 t -23 -56.5 Z" fill="#ffeb3b" />
+</svg>

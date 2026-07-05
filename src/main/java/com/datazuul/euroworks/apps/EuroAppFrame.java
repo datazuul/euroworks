@@ -14,6 +14,7 @@ public class EuroAppFrame extends JInternalFrame {
     private JLabel titleLabel;
     private Container userContentPane;
     private JMenuBar userMenuBar;
+    private JButton sysButton;
 
     // Custom retro vector icons for title buttons
     private static final Icon SYS_MENU_ICON = new SysMenuIcon();
@@ -142,7 +143,7 @@ public class EuroAppFrame extends JInternalFrame {
         // Left controls: Retro System Close box [=]
         JPanel leftButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 3, 3));
         leftButtonPanel.setOpaque(false);
-        JButton sysButton = createRetroButton(SYS_MENU_ICON);
+        sysButton = createRetroButton(com.datazuul.euroworks.shell.EuroIconThemeManager.getIcon(getIconThemeKey()));
         sysButton.setToolTipText("Close");
         sysButton.addActionListener(e -> dispose());
         leftButtonPanel.add(sysButton);
@@ -272,5 +273,36 @@ public class EuroAppFrame extends JInternalFrame {
 
         @Override public int getIconWidth() { return 16; }
         @Override public int getIconHeight() { return 16; }
+    }
+
+    public String getIconThemeKey() {
+        String title = getTitle().toLowerCase();
+        if (title.contains("cd player")) return "cdplayer";
+        if (title.contains("preferences")) return "preferences";
+        if (title.contains("manager")) return "folder";
+        if (title.contains("write")) return "document";
+        if (title.contains("calc")) return "calc";
+        if (title.contains("draw") || title.contains("paint")) return "paint";
+        if (title.contains("mines")) return "mines";
+        if (title.contains("radio")) return "radio";
+        if (title.contains("web")) return "web";
+        if (title.contains("breakout")) return "breakout";
+        if (title.contains("invaders")) return "invaders";
+        if (title.contains("file")) return "file";
+        if (title.contains("dex")) return "dex";
+        if (title.contains("mandelbrot")) return "mandelbrot";
+        if (title.contains("scan")) return "scan";
+        if (title.contains("pipes")) return "pipes";
+        if (title.contains("maze")) return "maze";
+        if (title.contains("bezier")) return "bezier";
+        if (title.contains("starfield")) return "starfield";
+        return "generic_app";
+    }
+
+    public void updateTitleBarIcon() {
+        if (sysButton != null) {
+            sysButton.setIcon(com.datazuul.euroworks.shell.EuroIconThemeManager.getIcon(getIconThemeKey()));
+            sysButton.repaint();
+        }
     }
 }

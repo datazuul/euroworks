@@ -171,7 +171,7 @@ public class EuroRadio extends EuroAppFrame {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 6, 0));
         buttonPanel.setBackground(RETRO_BG);
 
-        JButton btnGlobalStop = buildRetroButton("⏹ Stopp", new Color(110, 40, 40));
+        JButton btnGlobalStop = buildRetroButton("⏹ Stopp");
         btnGlobalStop.setToolTipText("Wiedergabe stoppen");
         btnGlobalStop.addActionListener(e -> stopActivePlayback());
         buttonPanel.add(btnGlobalStop);
@@ -235,7 +235,7 @@ public class EuroRadio extends EuroAppFrame {
         buttons.setLayout(new BoxLayout(buttons, BoxLayout.Y_AXIS));
         buttons.setBackground(RETRO_BG);
 
-        btnPlayFav = buildRetroButton("▶ Abspielen", new Color(40, 100, 40));
+        btnPlayFav = buildRetroButton("▶ Abspielen");
         btnPlayFav.setEnabled(false);
         btnPlayFav.addActionListener(e -> {
             RadioStation selected = listFavorites.getSelectedValue();
@@ -243,14 +243,14 @@ public class EuroRadio extends EuroAppFrame {
                 playStation(selected);
         });
 
-        btnStopFav = buildRetroButton("⏹ Stopp", new Color(110, 40, 40));
+        btnStopFav = buildRetroButton("⏹ Stopp");
         btnStopFav.setEnabled(false);
         btnStopFav.addActionListener(e -> stopActivePlayback());
 
-        JButton btnAdd = buildRetroButton("➕ Neu...", new Color(40, 80, 100));
+        JButton btnAdd = buildRetroButton("➕ Neu...");
         btnAdd.addActionListener(e -> addNewFavoriteDialog());
 
-        JButton btnDelete = buildRetroButton("➖ Löschen", new Color(120, 80, 40));
+        JButton btnDelete = buildRetroButton("➖ Löschen");
         btnDelete.addActionListener(e -> deleteSelectedFavorite());
 
         buttons.add(btnPlayFav);
@@ -281,7 +281,7 @@ public class EuroRadio extends EuroAppFrame {
         txtSearch.setFont(new Font("SansSerif", Font.PLAIN, 12));
         txtSearch.addActionListener(e -> triggerSearch());
 
-        JButton btnSearch = buildRetroButton("Suchen", new Color(50, 50, 100));
+        JButton btnSearch = buildRetroButton("Suchen");
         btnSearch.addActionListener(e -> triggerSearch());
 
         searchBar.add(lblQuery);
@@ -315,7 +315,7 @@ public class EuroRadio extends EuroAppFrame {
         JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 6, 0));
         actionPanel.setBackground(RETRO_BG);
 
-        btnPlaySearch = buildRetroButton("▶ Ausgewählte Station abspielen", new Color(40, 100, 40));
+        btnPlaySearch = buildRetroButton("▶ Ausgewählte Station abspielen");
         btnPlaySearch.setEnabled(false);
         btnPlaySearch.addActionListener(e -> {
             int row = tableSearch.getSelectedRow();
@@ -324,7 +324,7 @@ public class EuroRadio extends EuroAppFrame {
             }
         });
 
-        btnAddSearch = buildRetroButton("⭐ Zu Favoriten hinzufügen", new Color(40, 80, 100));
+        btnAddSearch = buildRetroButton("⭐ Zu Favoriten hinzufügen");
         btnAddSearch.setEnabled(false);
         btnAddSearch.addActionListener(e -> {
             int row = tableSearch.getSelectedRow();
@@ -340,17 +340,8 @@ public class EuroRadio extends EuroAppFrame {
         return panel;
     }
 
-    private JButton buildRetroButton(String label, Color bg) {
-        JButton btn = new JButton(label);
-        btn.setFont(new Font("SansSerif", Font.BOLD, 11));
-        btn.setBackground(bg);
-        btn.setForeground(Color.WHITE);
-        btn.setOpaque(true);
-        btn.setFocusPainted(false);
-        btn.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(bg.darker(), 1),
-                BorderFactory.createEmptyBorder(4, 10, 4, 10)));
-        return btn;
+    private JButton buildRetroButton(String label) {
+        return new com.datazuul.euroworks.ui.EuroButton(label);
     }
 
     // ── Favorites IO ─────────────────────────────────────────────────────────

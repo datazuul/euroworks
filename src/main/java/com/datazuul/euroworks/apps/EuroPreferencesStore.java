@@ -88,4 +88,12 @@ public class EuroPreferencesStore {
     public static void setScreensaverTimeout(int seconds) {
         getPrefs().putInt("screensaverTimeout", seconds);
     }
+
+    public static String getIconThemeName() {
+        return getPrefs().get("iconThemeName", "euro");
+    }
+
+    public static void setIconThemeName(String name) {
+        getPrefs().put("iconThemeName", name);
+    }
 }

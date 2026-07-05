@@ -72,6 +72,17 @@ By default, EuroWorks monitors user activity (mouse and keyboard input). If the 
 
 ---
 
+## 🎨 Icon Themes & Menu Structures (Freedesktop Specification)
+
+EuroWorks supports dynamic launcher menus and icon theme switching according to standard Freedesktop specifications:
+
+* **Menu Structure**: Loaded and parsed from `~/.euroworks/.config/menus/menus.xml` (using standard XML submenus, filename tags, and separators).
+* **Desktop Application Entries**: Configured via `.desktop` files under `~/.euroworks/share/applications/` specifying application name, command, and icon keys.
+* **Icon Themes**: Loaded and scanned from `~/.euroworks/share/icons/` using the standard `index.theme` format. Falls back gracefully to packaged classpath resources or programmatic vector icons if not found.
+* **Automatic Theme Synchronizer**: On application startup, the default `"Euro"` theme configuration, XML menus, `.desktop` launcher items, and scalable SVG icons are automatically copied from the classpath to their standard locations under `~/.euroworks/` if not already present, making the environment completely data-driven.
+
+---
+
 ## 🖨️ EuroScan – Scanner Prerequisites & Features
 
 EuroScan acquires images from a connected flatbed scanner using the platform-native scanning subsystem. No additional Java library or JAR is required, but the OS-level scanner tooling must be present and the scanner must have a compatible driver installed.

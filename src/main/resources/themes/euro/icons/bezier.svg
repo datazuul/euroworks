@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
+  <!-- Bezier curve and control handles -->
+  <path d="M2 13 C4 2, 12 2, 14 13" fill="none" stroke="#9f7aec" stroke-width="1.8"/>
+  <!-- Control points -->
+  <circle cx="2" cy="13" r="1.2" fill="#3182ce"/>
+  <circle cx="14" cy="13" r="1.2" fill="#3182ce"/>
+  <circle cx="4.5" cy="4.8" r="1" fill="#e53e3e"/>
+  <circle cx="11.5" cy="4.8" r="1" fill="#e53e3e"/>
+  <!-- Control lines -->
+  <line x1="2" y1="13" x2="4.5" y2="4.8" stroke="#a0aec0" stroke-width="0.6" stroke-dasharray="1.5 1"/>
+  <line x1="14" y1="13" x2="11.5" y2="4.8" stroke="#a0aec0" stroke-width="0.6" stroke-dasharray="1.5 1"/>
+</svg>

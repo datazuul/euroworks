@@ -102,29 +102,29 @@ public class EuroScan extends EuroAppFrame {
         toolbar.setBackground(new Color(212, 208, 200));
         toolbar.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(128, 128, 128)));
 
-        btnSelect = buildRetroButton("📋  Scanner...", new Color(80, 60, 110), Color.WHITE);
+        btnSelect = buildRetroButton("📋  Scanner...");
         btnSelect.setToolTipText("Verfügbare Scanner auflisten und auswählen");
         btnSelect.addActionListener(e -> selectScanner());
         toolbar.add(btnSelect);
 
-        btnScan = buildRetroButton("⬛  Scannen", new Color(0, 90, 110), Color.WHITE);
+        btnScan = buildRetroButton("⬛  Scannen");
         btnScan.setToolTipText("Scan starten");
         btnScan.addActionListener(e -> startScan());
         toolbar.add(btnScan);
 
-        btnCrop = buildRetroButton("✂  Zuschneiden", new Color(130, 70, 20), Color.WHITE);
+        btnCrop = buildRetroButton("✂  Zuschneiden");
         btnCrop.setToolTipText("Ausgewählten Bereich ausschneiden");
         btnCrop.setEnabled(false);
         btnCrop.addActionListener(e -> cropImage());
         toolbar.add(btnCrop);
 
-        btnRotate = buildRetroButton("↻  Drehen +90°", new Color(70, 70, 110), Color.WHITE);
+        btnRotate = buildRetroButton("↻  Drehen +90°");
         btnRotate.setToolTipText("Bild 90° im Uhrzeigersinn drehen");
         btnRotate.setEnabled(false);
         btnRotate.addActionListener(e -> rotateImage());
         toolbar.add(btnRotate);
 
-        btnSave = buildRetroButton("💾  Speichern", new Color(60, 100, 60), Color.WHITE);
+        btnSave = buildRetroButton("💾  Speichern");
         btnSave.setToolTipText("Scanbild als PNG speichern");
         btnSave.setEnabled(false);
         btnSave.addActionListener(e -> saveImage());
@@ -473,30 +473,14 @@ public class EuroScan extends EuroAppFrame {
         lblStatus.setForeground(color);
     }
 
-    private JButton buildRetroButton(String label, Color bg, Color fg) {
-        JButton btn = new JButton(label);
-        btn.setFont(new Font("SansSerif", Font.BOLD, 11));
-        btn.setBackground(bg);
-        btn.setForeground(fg);
-        btn.setOpaque(true);
-        btn.setFocusPainted(false);
-        btn.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(bg.darker(), 1),
-            BorderFactory.createEmptyBorder(4, 8, 4, 8)));
-        return btn;
+    private JButton buildRetroButton(String label) {
+        return new com.datazuul.euroworks.ui.EuroButton(label);
     }
 
     private JButton buildSmallButton(String label, String tooltip) {
-        JButton btn = new JButton(label);
+        JButton btn = new com.datazuul.euroworks.ui.EuroButton(label);
         btn.setFont(new Font("SansSerif", Font.BOLD, 12));
-        btn.setBackground(new Color(190, 185, 178));
-        btn.setForeground(new Color(40, 40, 40));
-        btn.setOpaque(true);
-        btn.setFocusPainted(false);
         btn.setToolTipText(tooltip);
-        btn.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(140, 135, 128), 1),
-            BorderFactory.createEmptyBorder(2, 7, 2, 7)));
         return btn;
     }
 
