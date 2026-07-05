@@ -213,6 +213,11 @@ public class EuroWeb extends EuroAppFrame {
 
     private void initJavaFX() {
         Platform.runLater(() -> {
+            try {
+                Platform.setImplicitExit(false);
+            } catch (Throwable t) {
+                // Ignore if already set or error initializing
+            }
             WebView webView = new WebView();
             webEngine = webView.getEngine();
 
@@ -225,6 +230,23 @@ public class EuroWeb extends EuroAppFrame {
             setupJavaFXListeners();
             loadHomePage();
         });
+    }
+
+    @Override
+    public void dispose() {
+        if (throbber != null) {
+            throbber.setLoading(false);
+        }
+        Platform.runLater(() -> {
+            try {
+                if (webEngine != null) {
+                    webEngine.load("about:blank");
+                }
+            } catch (Throwable t) {
+                // Ignore during shutdown
+            }
+        });
+        super.dispose();
     }
 
     private void setupJavaFXListeners() {
