@@ -82,8 +82,11 @@ public class EuroCDPlayer extends EuroAppFrame {
     private static final Color LCD_BG  = Color.BLACK; // Black LCD background
     private static final Color LCD_FG  = new Color(0, 220, 0); // Bright green text
 
+    private final Object cdioLock = new Object();
+    private volatile boolean isLoading = false;
+
     // State Variables
-    private PlayerState state = PlayerState.STOPPED;
+    private PlayerState state = PlayerState.NO_CD;
     private int currentTrack = 0; // 0-indexed
     private int trackElapsed = 0; // seconds elapsed in current track
     private int volumeTicks = 12; // 0 to 18 volume ticks
@@ -152,20 +155,11 @@ public class EuroCDPlayer extends EuroAppFrame {
         discDetectionTimer = new Timer(3000, e -> {
             if (state == PlayerState.NO_CD) {
                 loadCD();
-                if (state != PlayerState.NO_CD) {
-                    // Disc found – stop polling and refresh UI
-                    ((Timer) e.getSource()).stop();
-                    repaintPanels();
-                }
             }
         });
 
-        // Detect and load CD tracks on startup
+        // Detect and load CD tracks on startup (asynchronously)
         loadCD();
-        // Start polling if no disc detected on startup
-        if (state == PlayerState.NO_CD) {
-            discDetectionTimer.start();
-        }
 
         // Layout panels
         JPanel content = new JPanel(new BorderLayout());
@@ -278,75 +272,96 @@ public class EuroCDPlayer extends EuroAppFrame {
     // ── Physical CD-ROM Integration ─────────────────────────────────────────
 
     private void loadCD() {
-        boolean loadedNative = false;
-        if (libCdioAvailable) {
-            try {
-                if (activeCdio != null) {
-                    LibCdio.INSTANCE.cdio_destroy(activeCdio);
-                    activeCdio = null;
-                }
-                activeCdio = LibCdio.INSTANCE.cdio_open(null, 0); // 0 = DRIVER_UNKNOWN
-                if (activeCdio != null) {
-                    int first = LibCdio.INSTANCE.cdio_get_first_track_num(activeCdio);
-                    int num = LibCdio.INSTANCE.cdio_get_num_tracks(activeCdio);
-                    if (num > 0 && first != 255) {
-                        trackDurations = new int[num];
-                        trackStartLbas = new int[num];
-                        trackSectorCounts = new int[num];
-                        for (int i = 0; i < num; i++) {
-                            int t = first + i;
-                            trackStartLbas[i] = LibCdio.INSTANCE.cdio_get_track_lba(activeCdio, t);
-                            trackSectorCounts[i] = LibCdio.INSTANCE.cdio_get_track_sec_count(activeCdio, t);
-                            trackDurations[i] = trackSectorCounts[i] / 75;
+        if (isLoading) return;
+        isLoading = true;
+
+        new Thread(() -> {
+            boolean loadedNative = false;
+            int[] tempDurations = new int[0];
+            int[] tempStartLbas = new int[0];
+            int[] tempSectorCounts = new int[0];
+
+            if (libCdioAvailable) {
+                try {
+                    synchronized (cdioLock) {
+                        if (activeCdio != null) {
+                            LibCdio.INSTANCE.cdio_destroy(activeCdio);
+                            activeCdio = null;
                         }
-                        currentTrack = 0;
-                        trackElapsed = 0;
-                        state = PlayerState.STOPPED;
+                        activeCdio = LibCdio.INSTANCE.cdio_open(null, 0); // 0 = DRIVER_UNKNOWN
+                        if (activeCdio != null) {
+                            int first = LibCdio.INSTANCE.cdio_get_first_track_num(activeCdio);
+                            int num = LibCdio.INSTANCE.cdio_get_num_tracks(activeCdio);
+                            if (num > 0 && first != 255) {
+                                tempDurations = new int[num];
+                                tempStartLbas = new int[num];
+                                tempSectorCounts = new int[num];
+                                for (int i = 0; i < num; i++) {
+                                    int t = first + i;
+                                    tempStartLbas[i] = LibCdio.INSTANCE.cdio_get_track_lba(activeCdio, t);
+                                    tempSectorCounts[i] = LibCdio.INSTANCE.cdio_get_track_sec_count(activeCdio, t);
+                                    tempDurations[i] = tempSectorCounts[i] / 75;
+                                }
+                                loadedNative = true;
+                            }
+                        }
+                    }
+                } catch (Throwable t) {
+                    System.out.println("Error reading CD using libcdio: " + t.getMessage());
+                }
+            }
+
+            if (!loadedNative) {
+                // Platform-independent file-level fallback
+                File cdDrive = detectCdDrive();
+                if (cdDrive != null) {
+                    File[] files = cdDrive.listFiles((dir, name) -> name.toLowerCase().endsWith(".cda"));
+                    if (files != null && files.length > 0) {
+                        Arrays.sort(files, Comparator.comparing(File::getName));
+                        tempDurations = new int[files.length];
+                        tempStartLbas = new int[files.length];
+                        tempSectorCounts = new int[files.length];
+                        for (int i = 0; i < files.length; i++) {
+                            tempDurations[i] = readCdaDurationInSeconds(files[i]);
+                            tempSectorCounts[i] = tempDurations[i] * 75;
+                            tempStartLbas[i] = (i == 0) ? 150 : tempStartLbas[i - 1] + tempSectorCounts[i - 1];
+                        }
                         loadedNative = true;
                     }
                 }
-            } catch (Throwable t) {
-                System.out.println("Error reading CD using libcdio: " + t.getMessage());
             }
-        }
 
-        if (!loadedNative) {
-            // Platform-independent file-level fallback
-            File cdDrive = detectCdDrive();
-            if (cdDrive != null) {
-                File[] files = cdDrive.listFiles((dir, name) -> name.toLowerCase().endsWith(".cda"));
-                if (files != null && files.length > 0) {
-                    Arrays.sort(files, Comparator.comparing(File::getName));
-                    trackDurations = new int[files.length];
-                    trackStartLbas = new int[files.length];
-                    trackSectorCounts = new int[files.length];
-                    for (int i = 0; i < files.length; i++) {
-                        trackDurations[i] = readCdaDurationInSeconds(files[i]);
-                        trackSectorCounts[i] = trackDurations[i] * 75;
-                        trackStartLbas[i] = (i == 0) ? 150 : trackStartLbas[i - 1] + trackSectorCounts[i - 1];
-                    }
+            final boolean finalLoaded = loadedNative;
+            final int[] finalDurations = tempDurations;
+            final int[] finalStartLbas = tempStartLbas;
+            final int[] finalSectorCounts = tempSectorCounts;
+
+            SwingUtilities.invokeLater(() -> {
+                isLoading = false;
+                if (finalLoaded) {
+                    trackDurations = finalDurations;
+                    trackStartLbas = finalStartLbas;
+                    trackSectorCounts = finalSectorCounts;
                     currentTrack = 0;
                     trackElapsed = 0;
                     state = PlayerState.STOPPED;
-                    // Kick off MusicBrainz lookup in background
+                    discDetectionTimer.stop();
                     lookupMusicBrainz();
-                    return;
+                } else {
+                    trackDurations = new int[0];
+                    trackStartLbas = new int[0];
+                    trackSectorCounts = new int[0];
+                    trackTitles = new String[0];
+                    albumTitle = "";
+                    albumArtist = "";
+                    state = PlayerState.NO_CD;
+                    if (!discDetectionTimer.isRunning()) {
+                        discDetectionTimer.start();
+                    }
                 }
-            }
-            // Fallback to empty state
-            trackDurations = new int[0];
-            trackStartLbas = new int[0];
-            trackSectorCounts = new int[0];
-            trackTitles = new String[0];
-            albumTitle = "";
-            albumArtist = "";
-            state = PlayerState.NO_CD;
-            return;
-        }
-        // Kick off MusicBrainz lookup after native CD loaded
-        if (loadedNative) {
-            lookupMusicBrainz();
-        }
+                repaintPanels();
+            });
+        }, "CD-Loader").start();
     }
 
     private File detectCdDrive() {
@@ -456,14 +471,26 @@ public class EuroCDPlayer extends EuroAppFrame {
         // Restore after old thread is dead (it may have overwritten these during shutdown)
         currentTrack = savedTrack;
         trackElapsed = savedElapsed;
-        if (!libCdioAvailable || activeCdio == null || trackDurations.length == 0) return;
+        boolean canStart;
+        synchronized (cdioLock) {
+            canStart = libCdioAvailable && activeCdio != null && trackDurations.length > 0;
+        }
+        if (!canStart) return;
 
         audioStopRequested = false;
         openAudioLine();
 
         audioThread = new Thread(() -> {
-            int startLsn = trackStartLbas[currentTrack];
-            int sectorCount = trackSectorCounts[currentTrack];
+            int startLsn;
+            int sectorCount;
+            synchronized (cdioLock) {
+                if (activeCdio == null || trackDurations.length == 0) {
+                    SwingUtilities.invokeLater(() -> stopCD());
+                    return;
+                }
+                startLsn = trackStartLbas[currentTrack];
+                sectorCount = trackSectorCounts[currentTrack];
+            }
             int currentSector = startLsn + (trackElapsed * 75);
             byte[] buf = new byte[2352]; // 1 sector CD-DA PCM data (16-bit stereo 44.1kHz)
 
@@ -487,7 +514,14 @@ public class EuroCDPlayer extends EuroAppFrame {
                 }
 
                 // Read real CD audio sector from hardware drive via JNA
-                int ret = LibCdio.INSTANCE.cdio_read_audio_sectors(activeCdio, buf, currentSector, 1);
+                int ret;
+                synchronized (cdioLock) {
+                    if (activeCdio != null) {
+                        ret = LibCdio.INSTANCE.cdio_read_audio_sectors(activeCdio, buf, currentSector, 1);
+                    } else {
+                        ret = -1;
+                    }
+                }
                 if (ret == 0) { // Success
                     if (audioLine != null) {
                         audioLine.write(buf, 0, buf.length); // Blocking write synchronizes timing
@@ -584,7 +618,11 @@ public class EuroCDPlayer extends EuroAppFrame {
             return;
         }
         state = PlayerState.PLAYING;
-        if (libCdioAvailable && activeCdio != null) {
+        boolean useAudioThread;
+        synchronized (cdioLock) {
+            useAudioThread = libCdioAvailable && activeCdio != null;
+        }
+        if (useAudioThread) {
             startAudioThread();
         } else {
             playTimer.start(); // Fallback simulation
@@ -606,15 +644,14 @@ public class EuroCDPlayer extends EuroAppFrame {
             loadCD();
 
         } else {
-            if (libCdioAvailable && activeCdio != null) {
-                stopCD();
-                // cdio_eject_media takes a pointer-to-pointer; it ejects AND frees the handle
-                com.sun.jna.ptr.PointerByReference pbr = new com.sun.jna.ptr.PointerByReference(activeCdio);
-                LibCdio.INSTANCE.cdio_eject_media(pbr);
-                activeCdio = null; // handle is now freed by cdio_eject_media
-            } else if (!libCdioAvailable) {
-                // libcdio not available – stop playback only
-                stopAudioThread();
+            stopCD();
+            synchronized (cdioLock) {
+                if (libCdioAvailable && activeCdio != null) {
+                    // cdio_eject_media takes a pointer-to-pointer; it ejects AND frees the handle
+                    com.sun.jna.ptr.PointerByReference pbr = new com.sun.jna.ptr.PointerByReference(activeCdio);
+                    LibCdio.INSTANCE.cdio_eject_media(pbr);
+                    activeCdio = null; // handle is now freed by cdio_eject_media
+                }
             }
             state = PlayerState.NO_CD;
             trackDurations = new int[0];
@@ -622,7 +659,6 @@ public class EuroCDPlayer extends EuroAppFrame {
             trackSectorCounts = new int[0];
             trackElapsed = 0;
             playTimer.stop();
-            stopAudioThread();
             // Start polling for the next disc insertion
             if (!discDetectionTimer.isRunning()) {
                 discDetectionTimer.start();
@@ -637,7 +673,11 @@ public class EuroCDPlayer extends EuroAppFrame {
         currentTrack = index;
         trackElapsed = 0;
         if (state == PlayerState.PLAYING) {
-            if (libCdioAvailable && activeCdio != null) {
+            boolean useAudioThread;
+            synchronized (cdioLock) {
+                useAudioThread = libCdioAvailable && activeCdio != null;
+            }
+            if (useAudioThread) {
                 startAudioThread();
             }
         }
@@ -654,7 +694,11 @@ public class EuroCDPlayer extends EuroAppFrame {
             }
             trackElapsed = 0;
         }
-        if (state == PlayerState.PLAYING && libCdioAvailable && activeCdio != null) {
+        boolean useAudioThread;
+        synchronized (cdioLock) {
+            useAudioThread = libCdioAvailable && activeCdio != null;
+        }
+        if (state == PlayerState.PLAYING && useAudioThread) {
             startAudioThread();
         }
         repaintPanels();
@@ -668,7 +712,11 @@ public class EuroCDPlayer extends EuroAppFrame {
             currentTrack = 0;
         }
         trackElapsed = 0;
-        if (state == PlayerState.PLAYING && libCdioAvailable && activeCdio != null) {
+        boolean useAudioThread;
+        synchronized (cdioLock) {
+            useAudioThread = libCdioAvailable && activeCdio != null;
+        }
+        if (state == PlayerState.PLAYING && useAudioThread) {
             startAudioThread();
         }
         repaintPanels();
@@ -677,7 +725,11 @@ public class EuroCDPlayer extends EuroAppFrame {
     private void fastRewind() {
         if (state == PlayerState.NO_CD || trackDurations.length == 0) return;
         trackElapsed = Math.max(0, trackElapsed - 10);
-        if (state == PlayerState.PLAYING && libCdioAvailable && activeCdio != null) {
+        boolean useAudioThread;
+        synchronized (cdioLock) {
+            useAudioThread = libCdioAvailable && activeCdio != null;
+        }
+        if (state == PlayerState.PLAYING && useAudioThread) {
             startAudioThread();
         }
         repaintPanels();
@@ -686,7 +738,11 @@ public class EuroCDPlayer extends EuroAppFrame {
     private void fastForward() {
         if (state == PlayerState.NO_CD || trackDurations.length == 0) return;
         trackElapsed = Math.min(trackDurations[currentTrack] - 1, trackElapsed + 10);
-        if (state == PlayerState.PLAYING && libCdioAvailable && activeCdio != null) {
+        boolean useAudioThread;
+        synchronized (cdioLock) {
+            useAudioThread = libCdioAvailable && activeCdio != null;
+        }
+        if (state == PlayerState.PLAYING && useAudioThread) {
             startAudioThread();
         }
         repaintPanels();
@@ -961,9 +1017,11 @@ public class EuroCDPlayer extends EuroAppFrame {
         discDetectionTimer.stop();
         playTimer.stop();
         stopAudioThread();
-        if (libCdioAvailable && activeCdio != null) {
-            LibCdio.INSTANCE.cdio_destroy(activeCdio);
-            activeCdio = null;
+        synchronized (cdioLock) {
+            if (libCdioAvailable && activeCdio != null) {
+                LibCdio.INSTANCE.cdio_destroy(activeCdio);
+                activeCdio = null;
+            }
         }
         super.dispose();
     }
