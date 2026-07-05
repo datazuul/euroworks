@@ -1,12 +1,31 @@
 package com.datazuul.euroworks.games;
 
-import com.datazuul.euroworks.apps.EuroAppFrame;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Random;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
+
+import com.datazuul.euroworks.apps.EuroAppFrame;
 
 /**
  * Classic Windows-style Minesweeper game for EuroWorks.
@@ -38,24 +57,24 @@ public class EuroMines extends EuroAppFrame {
     private Difficulty currentDifficulty = Difficulty.BEGINNER;
 
     // ── Palette ─────────────────────────────────────────────────────────────
-    private static final Color SILVER   = new Color(192, 192, 192);
-    private static final Color SHADOW   = new Color(128, 128, 128);
-    private static final Color DARK     = new Color(64,  64,  64);
-    private static final Color HILIGHT  = Color.WHITE;
-    private static final Color LED_RED  = new Color(255, 0, 0);
+    private static final Color SILVER = new Color(192, 192, 192);
+    private static final Color SHADOW = new Color(128, 128, 128);
+    private static final Color DARK = new Color(64, 64, 64);
+    private static final Color HILIGHT = Color.WHITE;
+    private static final Color LED_RED = new Color(255, 0, 0);
     private static final Color LED_DARK = new Color(80, 0, 0);
 
     // Number colors from classic Minesweeper
     private static final Color[] NUM_COLORS = {
-        Color.LIGHT_GRAY, // Dummy for 0
-        new Color(0, 0, 255),     // 1: Blue
-        new Color(0, 128, 0),     // 2: Green
-        new Color(255, 0, 0),     // 3: Red
-        new Color(0, 0, 128),     // 4: Dark Blue
-        new Color(128, 0, 0),     // 5: Dark Red/Maroon
-        new Color(0, 128, 128),   // 6: Turquoise
-        Color.BLACK,              // 7: Black
-        Color.GRAY                // 8: Gray
+            Color.LIGHT_GRAY, // Dummy for 0
+            new Color(0, 0, 255), // 1: Blue
+            new Color(0, 128, 0), // 2: Green
+            new Color(255, 0, 0), // 3: Red
+            new Color(0, 0, 128), // 4: Dark Blue
+            new Color(128, 0, 0), // 5: Dark Red/Maroon
+            new Color(0, 128, 128), // 6: Turquoise
+            Color.BLACK, // 7: Black
+            Color.GRAY // 8: Gray
     };
 
     // ── Game State ──────────────────────────────────────────────────────────
@@ -85,7 +104,7 @@ public class EuroMines extends EuroAppFrame {
 
     public EuroMines() {
         super("EuroMines (Minesweeper)");
-        
+
         // Build difficulty selection menu
         setJMenuBar(buildMenuBar());
 
@@ -118,7 +137,7 @@ public class EuroMines extends EuroAppFrame {
                 g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
                 g2.setColor(SILVER);
                 g2.fillRect(0, 0, getWidth(), getHeight());
-                
+
                 boolean pressed = getModel().isPressed();
                 if (pressed) {
                     drawSunken(g2, 0, 0, getWidth(), getHeight());
@@ -290,7 +309,8 @@ public class EuroMines extends EuroAppFrame {
             int r = rand.nextInt(rows);
             int c = rand.nextInt(cols);
 
-            // Avoid putting a mine at the first clicked cell or its immediate neighbors (safe start)
+            // Avoid putting a mine at the first clicked cell or its immediate neighbors
+            // (safe start)
             if (Math.abs(r - firstRow) <= 1 && Math.abs(c - firstCol) <= 1) {
                 continue;
             }
@@ -307,7 +327,8 @@ public class EuroMines extends EuroAppFrame {
     private void calculateNeighbors() {
         for (int r = 0; r < rows; r++) {
             for (int c = 0; c < cols; c++) {
-                if (grid[r][c].isMine) continue;
+                if (grid[r][c].isMine)
+                    continue;
 
                 int mineCount = 0;
                 for (int dr = -1; dr <= 1; dr++) {
@@ -327,10 +348,12 @@ public class EuroMines extends EuroAppFrame {
     }
 
     private void revealCell(int c, int r) {
-        if (c < 0 || c >= cols || r < 0 || r >= rows) return;
+        if (c < 0 || c >= cols || r < 0 || r >= rows)
+            return;
         Cell cell = grid[r][c];
 
-        if (cell.isRevealed || cell.isFlagged) return;
+        if (cell.isRevealed || cell.isFlagged)
+            return;
 
         // First click safety
         if (firstClick) {
@@ -359,9 +382,11 @@ public class EuroMines extends EuroAppFrame {
     }
 
     private void toggleFlag(int c, int r) {
-        if (gameOver || gameWon || firstClick) return;
+        if (gameOver || gameWon || firstClick)
+            return;
         Cell cell = grid[r][c];
-        if (cell.isRevealed) return;
+        if (cell.isRevealed)
+            return;
 
         cell.isFlagged = !cell.isFlagged;
         if (cell.isFlagged) {
@@ -426,7 +451,8 @@ public class EuroMines extends EuroAppFrame {
     }
 
     private void checkAndPromptHighScore() {
-        if (timeElapsed <= 0) return;
+        if (timeElapsed <= 0)
+            return;
         String key = "EuroMines_" + currentDifficulty.name;
         HighScore hs = new HighScore(key);
         java.util.List<HighScore.ScoreEntry> scores = hs.getScores();
@@ -441,16 +467,17 @@ public class EuroMines extends EuroAppFrame {
         if (qualifies) {
             SwingUtilities.invokeLater(() -> {
                 String username = JOptionPane.showInputDialog(this,
-                    "Glückwunsch! Neuer Rekord für " + currentDifficulty.name + ": " + timeElapsed + " Sekunden\nBitte Name eingeben:",
-                    "Neuer Rekord",
-                    JOptionPane.PLAIN_MESSAGE
-                );
+                        "Glückwunsch! Neuer Rekord für " + currentDifficulty.name + ": " + timeElapsed
+                                + " Sekunden\nBitte Name eingeben:",
+                        "Neuer Rekord",
+                        JOptionPane.PLAIN_MESSAGE);
                 if (username != null && !username.trim().isEmpty()) {
                     try {
                         hs.setHighScore(timeElapsed, username.trim(), timeElapsed);
                         showHighScoresDialog();
                     } catch (java.io.IOException ex) {
-                        JOptionPane.showMessageDialog(this, "Fehler beim Speichern des Highscores.", "Fehler", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(this, "Fehler beim Speichern des Highscores.", "Fehler",
+                                JOptionPane.ERROR_MESSAGE);
                     }
                 }
             });
@@ -470,11 +497,10 @@ public class EuroMines extends EuroAppFrame {
             for (int i = 0; i < limit; i++) {
                 HighScore.ScoreEntry entry = scores.get(i);
                 sb.append(String.format("%d. %s - %d Sekunden (%s)\n",
-                    (i + 1),
-                    entry.username,
-                    entry.score,
-                    new java.text.SimpleDateFormat("dd.MM.yyyy HH:mm").format(entry.date)
-                ));
+                        (i + 1),
+                        entry.username,
+                        entry.score,
+                        new java.text.SimpleDateFormat("dd.MM.yyyy HH:mm").format(entry.date)));
             }
         }
         JOptionPane.showMessageDialog(this, sb.toString(), "Bestenliste", JOptionPane.INFORMATION_MESSAGE);
@@ -490,7 +516,8 @@ public class EuroMines extends EuroAppFrame {
             addMouseListener(new MouseAdapter() {
                 @Override
                 public void mousePressed(MouseEvent e) {
-                    if (gameOver || gameWon) return;
+                    if (gameOver || gameWon)
+                        return;
                     if (SwingUtilities.isLeftMouseButton(e)) {
                         btnSmiley.setText("😮");
                     }
@@ -498,7 +525,8 @@ public class EuroMines extends EuroAppFrame {
 
                 @Override
                 public void mouseReleased(MouseEvent e) {
-                    if (gameOver || gameWon) return;
+                    if (gameOver || gameWon)
+                        return;
                     btnSmiley.setText("☺");
 
                     int cellPixelSize = 18;
@@ -542,7 +570,7 @@ public class EuroMines extends EuroAppFrame {
                     if (cell.isRevealed) {
                         g2.setColor(SILVER);
                         g2.fillRect(cx, cy, cellSize, cellSize);
-                        
+
                         // Sunken border for revealed cells
                         drawSunkenCellBorder(g2, cx, cy, cellSize);
 
@@ -587,15 +615,15 @@ public class EuroMines extends EuroAppFrame {
 
         // Draw spiked circle mine
         g2.fillOval(cx - 4, cy - 4, 8, 8);
-        
+
         // Horizontal/vertical spikes
         g2.drawLine(cx - 6, cy, cx + 6, cy);
         g2.drawLine(cx, cy - 6, cx, cy + 6);
-        
+
         // Diagonal spikes
         g2.drawLine(cx - 5, cy - 5, cx + 5, cy + 5);
         g2.drawLine(cx - 5, cy + 5, cx + 5, cy - 5);
-        
+
         // Small white glare pixel
         g2.setColor(Color.WHITE);
         g2.fillRect(cx - 2, cy - 2, 2, 2);
@@ -612,8 +640,8 @@ public class EuroMines extends EuroAppFrame {
 
         // Red flag cloth
         g2.setColor(Color.RED);
-        int[] xPoints = {cx - 2, cx - 2, cx + 3};
-        int[] yPoints = {cy - 4, cy, cy - 2};
+        int[] xPoints = { cx - 2, cx - 2, cx + 3 };
+        int[] yPoints = { cy - 4, cy, cy - 2 };
         g2.fillPolygon(xPoints, yPoints, 3);
     }
 
@@ -667,8 +695,16 @@ public class EuroMines extends EuroAppFrame {
     // ── Utilities ───────────────────────────────────────────────────────────
 
     private static String formatThreeDigits(int val) {
-        if (val < 0) return "000";
-        if (val > 999) return "999";
+        if (val < 0)
+            return "000";
+        if (val > 999)
+            return "999";
         return String.format("%03d", val);
+    }
+
+    @Override
+    public void dispose() {
+        gameTimer.stop();
+        super.dispose();
     }
 }

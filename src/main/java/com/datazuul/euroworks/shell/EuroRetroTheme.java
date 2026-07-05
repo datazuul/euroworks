@@ -1,9 +1,10 @@
 package com.datazuul.euroworks.shell;
 
+import java.awt.Font;
+
 import javax.swing.plaf.ColorUIResource;
 import javax.swing.plaf.FontUIResource;
 import javax.swing.plaf.metal.DefaultMetalTheme;
-import java.awt.Font;
 
 public class EuroRetroTheme extends DefaultMetalTheme {
 

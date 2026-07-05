@@ -1,12 +1,30 @@
 package com.datazuul.euroworks.games;
 
-import com.datazuul.euroworks.apps.EuroAppFrame;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.ActionEvent;
+
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
+import javax.swing.InputMap;
+import javax.swing.JComponent;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
+
+import com.datazuul.euroworks.apps.EuroAppFrame;
 
 /**
  * Classic Atari Breakout (1976) replica for EuroWorks.
@@ -14,7 +32,8 @@ import java.awt.event.ActionEvent;
  * - 8 rows of colored bricks (Red, Orange, Green, Yellow).
  * - Multi-stage speed acceleration on hitting specific rows or bounce count.
  * - Score counter and remaining ball lives.
- * - Authentic retro sound synth blips using background thread source data lines.
+ * - Authentic retro sound synth blips using background thread source data
+ * lines.
  * - Interactive mouse paddle tracking and keyboard controls.
  */
 public class EuroBreakout extends EuroAppFrame {
@@ -28,14 +47,14 @@ public class EuroBreakout extends EuroAppFrame {
 
     // Brick rows colors (2 red, 2 orange, 2 green, 2 yellow)
     private static final Color[] ROW_COLORS = {
-        new Color(255, 0, 0),       // Row 0: Red
-        new Color(255, 0, 0),       // Row 1: Red
-        new Color(255, 128, 0),     // Row 2: Orange
-        new Color(255, 128, 0),     // Row 3: Orange
-        new Color(0, 200, 0),       // Row 4: Green
-        new Color(0, 200, 0),       // Row 5: Green
-        new Color(225, 225, 0),     // Row 6: Yellow
-        new Color(225, 225, 0)      // Row 7: Yellow
+            new Color(255, 0, 0), // Row 0: Red
+            new Color(255, 0, 0), // Row 1: Red
+            new Color(255, 128, 0), // Row 2: Orange
+            new Color(255, 128, 0), // Row 3: Orange
+            new Color(0, 200, 0), // Row 4: Green
+            new Color(0, 200, 0), // Row 5: Green
+            new Color(225, 225, 0), // Row 6: Yellow
+            new Color(225, 225, 0) // Row 7: Yellow
     };
 
     private static final int BRICK_ROWS = 8;
@@ -162,8 +181,8 @@ public class EuroBreakout extends EuroAppFrame {
     private void movePaddle(double delta) {
         if (state == GameState.RUNNING || state == GameState.LAUNCH) {
             paddleX += delta;
-            paddleX = Math.max(BRICK_SIDE_PADDING, 
-                      Math.min(GAME_WIDTH - BRICK_SIDE_PADDING - PADDLE_WIDTH, paddleX));
+            paddleX = Math.max(BRICK_SIDE_PADDING,
+                    Math.min(GAME_WIDTH - BRICK_SIDE_PADDING - PADDLE_WIDTH, paddleX));
             if (state == GameState.LAUNCH) {
                 resetBallPosition();
             }
@@ -264,7 +283,8 @@ public class EuroBreakout extends EuroAppFrame {
             try {
                 int sampleRate = 8000;
                 int numSamples = durationMs * sampleRate / 1000;
-                // Pad to at least 3000 samples (375ms) to prevent audio driver dropouts on short clips
+                // Pad to at least 3000 samples (375ms) to prevent audio driver dropouts on
+                // short clips
                 int totalSamples = Math.max(numSamples, 3000);
                 byte[] buf = new byte[totalSamples];
                 double phase = 0.0;
@@ -273,7 +293,7 @@ public class EuroBreakout extends EuroAppFrame {
                     buf[i] = (byte) (Math.sin(phase) >= 0.0 ? 40 : -40);
                 }
                 // Trailing samples are default-initialized to 0 (silence)
-                
+
                 javax.sound.sampled.AudioFormat af = new javax.sound.sampled.AudioFormat(sampleRate, 8, 1, true, false);
                 javax.sound.sampled.SourceDataLine sdl = javax.sound.sampled.AudioSystem.getSourceDataLine(af);
                 sdl.open(af);
@@ -302,7 +322,7 @@ public class EuroBreakout extends EuroAppFrame {
                     buf[i] = (byte) (Math.sin(phase) >= 0.0 ? 40 : -40);
                 }
                 // Trailing samples are 0
-                
+
                 javax.sound.sampled.AudioFormat af = new javax.sound.sampled.AudioFormat(sampleRate, 8, 1, true, false);
                 javax.sound.sampled.SourceDataLine sdl = javax.sound.sampled.AudioSystem.getSourceDataLine(af);
                 sdl.open(af);
@@ -373,7 +393,7 @@ public class EuroBreakout extends EuroAppFrame {
             if (ballX + BALL_SIZE >= paddleX && ballX <= paddleX + PADDLE_WIDTH) {
                 // Bounce ball
                 ballDy = -baseSpeed;
-                
+
                 // Adjust reflection angle based on where ball hits the paddle
                 double paddleCenter = paddleX + PADDLE_WIDTH / 2.0;
                 double ballCenter = ballX + BALL_SIZE / 2.0;
@@ -402,14 +422,15 @@ public class EuroBreakout extends EuroAppFrame {
 
         for (int r = 0; r < BRICK_ROWS; r++) {
             for (int c = 0; c < BRICK_COLS; c++) {
-                if (!bricks[r][c]) continue;
+                if (!bricks[r][c])
+                    continue;
 
                 int bx = c * brickWidth + BRICK_SIDE_PADDING;
                 int by = r * BRICK_HEIGHT + BRICK_TOP_OFFSET;
 
                 // Simple check if ball box overlaps brick box
                 if (ballX + BALL_SIZE >= bx && ballX <= bx + brickWidth &&
-                    ballY + BALL_SIZE >= by && ballY <= by + BRICK_HEIGHT) {
+                        ballY + BALL_SIZE >= by && ballY <= by + BRICK_HEIGHT) {
 
                     bricks[r][c] = false; // Destroy brick
 
@@ -417,10 +438,14 @@ public class EuroBreakout extends EuroAppFrame {
                     int rowPoints = 1;
                     if (r < 2) { // Red
                         rowPoints = 7;
-                        if (hitCount < 50) { baseSpeed = Math.max(baseSpeed, 7.0); }
+                        if (hitCount < 50) {
+                            baseSpeed = Math.max(baseSpeed, 7.0);
+                        }
                     } else if (r < 4) { // Orange
                         rowPoints = 5;
-                        if (hitCount < 50) { baseSpeed = Math.max(baseSpeed, 6.0); }
+                        if (hitCount < 50) {
+                            baseSpeed = Math.max(baseSpeed, 6.0);
+                        }
                     } else if (r < 6) { // Green
                         rowPoints = 3;
                     }
@@ -429,9 +454,12 @@ public class EuroBreakout extends EuroAppFrame {
                     // Play classic brick bounce synth tone
                     // Yellow: 100Hz, Green: 200Hz, Orange: 400Hz, Red: 800Hz
                     int freq = 100;
-                    if (r < 2) freq = 800;       // Red
-                    else if (r < 4) freq = 400;  // Orange
-                    else if (r < 6) freq = 200;  // Green
+                    if (r < 2)
+                        freq = 800; // Red
+                    else if (r < 4)
+                        freq = 400; // Orange
+                    else if (r < 6)
+                        freq = 200; // Green
                     playSound(freq, 80);
 
                     // Collision physics: reflect velocity along minimum overlap axis
@@ -472,7 +500,8 @@ public class EuroBreakout extends EuroAppFrame {
                 level = 2;
                 playSound(600, 150);
                 playSound(800, 300);
-                JOptionPane.showMessageDialog(this, "Level 1 geschafft! Weiter zu Level 2 (Pyramide)!", "Level Up", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Level 1 geschafft! Weiter zu Level 2 (Pyramide)!", "Level Up",
+                        JOptionPane.INFORMATION_MESSAGE);
                 initBricks();
                 resetBallPosition();
                 baseSpeed = 5.0; // Ball starts faster in level 2
@@ -488,7 +517,8 @@ public class EuroBreakout extends EuroAppFrame {
     }
 
     private void checkAndPromptHighScore() {
-        if (score <= 0) return;
+        if (score <= 0)
+            return;
 
         // Calculate total time needed in seconds
         int durationSecs = 0;
@@ -510,16 +540,17 @@ public class EuroBreakout extends EuroAppFrame {
         if (qualifies) {
             SwingUtilities.invokeLater(() -> {
                 String username = JOptionPane.showInputDialog(this,
-                    "Glückwunsch! Neuer High Score: " + score + " Punkte (in " + finalDuration + " Sek)\nBitte Name eingeben:",
-                    "Neuer High Score",
-                    JOptionPane.PLAIN_MESSAGE
-                );
+                        "Glückwunsch! Neuer High Score: " + score + " Punkte (in " + finalDuration
+                                + " Sek)\nBitte Name eingeben:",
+                        "Neuer High Score",
+                        JOptionPane.PLAIN_MESSAGE);
                 if (username != null && !username.trim().isEmpty()) {
                     try {
                         hs.setHighScore(score, username.trim(), finalDuration);
                         showHighScoresDialog();
                     } catch (java.io.IOException ex) {
-                        JOptionPane.showMessageDialog(this, "Fehler beim Speichern des Highscores.", "Fehler", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(this, "Fehler beim Speichern des Highscores.", "Fehler",
+                                JOptionPane.ERROR_MESSAGE);
                     }
                 }
             });
@@ -538,12 +569,11 @@ public class EuroBreakout extends EuroAppFrame {
             for (int i = 0; i < limit; i++) {
                 HighScore.ScoreEntry entry = scores.get(i);
                 sb.append(String.format("%d. %s - %d Punkte (%d Sek) (%s)\n",
-                    (i + 1),
-                    entry.username,
-                    entry.score,
-                    entry.timeNeeded,
-                    new java.text.SimpleDateFormat("dd.MM.yyyy HH:mm").format(entry.date)
-                ));
+                        (i + 1),
+                        entry.username,
+                        entry.score,
+                        entry.timeNeeded,
+                        new java.text.SimpleDateFormat("dd.MM.yyyy HH:mm").format(entry.date)));
             }
         }
         JOptionPane.showMessageDialog(this, sb.toString(), "Bestenliste", JOptionPane.INFORMATION_MESSAGE);
@@ -564,9 +594,9 @@ public class EuroBreakout extends EuroAppFrame {
                     if (state == GameState.RUNNING || state == GameState.LAUNCH) {
                         paddleX = e.getX() - PADDLE_WIDTH / 2.0;
                         // Clamp bounds
-                        paddleX = Math.max(BRICK_SIDE_PADDING, 
-                                  Math.min(GAME_WIDTH - BRICK_SIDE_PADDING - PADDLE_WIDTH, paddleX));
-                        
+                        paddleX = Math.max(BRICK_SIDE_PADDING,
+                                Math.min(GAME_WIDTH - BRICK_SIDE_PADDING - PADDLE_WIDTH, paddleX));
+
                         if (state == GameState.LAUNCH) {
                             resetBallPosition();
                         }
@@ -593,16 +623,17 @@ public class EuroBreakout extends EuroAppFrame {
 
             // Draw game screen boundaries/lines
             g2.setColor(Color.DARK_GRAY);
-            g2.drawRect(BRICK_SIDE_PADDING, BRICK_SIDE_PADDING, GAME_WIDTH - 2 * BRICK_SIDE_PADDING, GAME_HEIGHT - 2 * BRICK_SIDE_PADDING);
+            g2.drawRect(BRICK_SIDE_PADDING, BRICK_SIDE_PADDING, GAME_WIDTH - 2 * BRICK_SIDE_PADDING,
+                    GAME_HEIGHT - 2 * BRICK_SIDE_PADDING);
 
             // 1. Draw HUD
             g2.setFont(new Font("Monospaced", Font.BOLD, 16));
             g2.setColor(Color.GREEN);
             g2.drawString(String.format("PUNKTE: %03d", score), 20, 40);
-            
+
             g2.setColor(Color.WHITE);
             g2.drawString(String.format("LEVEL: %d", level), GAME_WIDTH / 2 - 40, 40);
-            
+
             g2.setColor(Color.RED);
             g2.drawString(String.format("BALLS: %d", lives), GAME_WIDTH - 120, 40);
 
@@ -666,5 +697,12 @@ public class EuroBreakout extends EuroAppFrame {
             int x = (getWidth() - fm.stringWidth(text)) / 2;
             g2.drawString(text, x, y);
         }
+    }
+
+    @Override
+    public void dispose() {
+        loopTimer.stop();
+        state = GameState.GAME_OVER;
+        super.dispose();
     }
 }

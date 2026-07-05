@@ -190,6 +190,9 @@ public class EuroTaskbar extends JPanel {
         organizeMenu.add(buildMenuItem("EuroDex", "EuroDex"));
         organizeMenu.add(buildMenuItem("EuroMandelbrot", "EuroMandelbrot"));
         organizeMenu.add(buildMenuItem("CD Player", "EuroCDPlayer"));
+        organizeMenu.add(buildMenuItem("EuroScan", "EuroScan"));
+        organizeMenu.add(buildMenuItem("EuroRadio", "EuroRadio"));
+        organizeMenu.add(buildMenuItem("EuroWeb", "EuroWeb"));
         organizeMenu.addSeparator();
         organizeMenu.add(buildMenuItem("EuroPipes", "EuroPipes"));
         organizeMenu.add(buildMenuItem("EuroMaze", "EuroMaze"));

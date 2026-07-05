@@ -720,6 +720,13 @@ public class EuroInvaders extends EuroAppFrame {
         }
     }
 
+    @Override
+    public void dispose() {
+        loopTimer.stop();
+        state = GameState.GAME_OVER;
+        super.dispose();
+    }
+
     private void showHighScoresDialog() {
         HighScore hs = new HighScore("EuroInvaders");
         List<HighScore.ScoreEntry> scores = hs.getScores();

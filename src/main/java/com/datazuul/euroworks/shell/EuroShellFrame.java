@@ -7,6 +7,9 @@ import com.datazuul.euroworks.apps.EuroPreferences;
 import com.datazuul.euroworks.apps.EuroDex;
 import com.datazuul.euroworks.apps.EuroMandelbrot;
 import com.datazuul.euroworks.apps.EuroCDPlayer;
+import com.datazuul.euroworks.apps.EuroScan;
+import com.datazuul.euroworks.apps.euroradio.EuroRadio;
+import com.datazuul.euroworks.apps.euroweb.EuroWeb;
 import com.datazuul.euroworks.screensavers.EuroPipes;
 import com.datazuul.euroworks.screensavers.EuroMaze;
 import com.datazuul.euroworks.screensavers.EuroBezier;
@@ -26,7 +29,7 @@ public class EuroShellFrame extends JFrame {
 
     private final EuroDesktopPane desktopPane;
     private final EuroTaskbar taskbar;
-    
+
     private Timer idleTimer = null;
     private long lastActivityTime = System.currentTimeMillis();
     private boolean screensaverRunning = false;
@@ -49,12 +52,11 @@ public class EuroShellFrame extends JFrame {
         // Wrap desktop + taskbar in a BorderLayout panel
         JPanel root = new JPanel(new BorderLayout());
         root.add(desktopPane, BorderLayout.CENTER);
-        root.add(taskbar,     BorderLayout.SOUTH);
+        root.add(taskbar, BorderLayout.SOUTH);
         setContentPane(root);
 
         // Build global menu bar
         setJMenuBar(createMenuBar());
-
 
         // Initialize global inactivity screensaver timer
         initIdleTimer();
@@ -68,7 +70,9 @@ public class EuroShellFrame extends JFrame {
         expressMenu.setFont(expressMenu.getFont().deriveFont(Font.BOLD));
         expressMenu.setForeground(new Color(0, 100, 100)); // Special styling for retro branding
 
-        String[] apps = {"EuroManager", "EuroWrite", "EuroDraw", "EuroCalc", "EuroFile", "EuroDex", "EuroMandelbrot", "EuroPipes", "EuroMaze", "EuroBezier", "EuroStarfield", "EuroMines", "EuroBreakout", "EuroInvaders", "EuroCDPlayer", "EuroPreferences"};
+        String[] apps = { "EuroManager", "EuroWrite", "EuroDraw", "EuroCalc", "EuroFile", "EuroDex", "EuroMandelbrot",
+                "EuroPipes", "EuroMaze", "EuroBezier", "EuroStarfield", "EuroMines", "EuroBreakout", "EuroInvaders",
+                "EuroCDPlayer", "EuroScan", "EuroRadio", "EuroWeb", "EuroPreferences" };
         for (String appName : apps) {
             JMenuItem appItem = new JMenuItem(appName);
             appItem.addActionListener(e -> launchApp(appName));
@@ -147,6 +151,12 @@ public class EuroShellFrame extends JFrame {
             frame = new EuroInvaders();
         } else if ("EuroCDPlayer".equals(appName)) {
             frame = new EuroCDPlayer();
+        } else if ("EuroScan".equals(appName)) {
+            frame = new EuroScan();
+        } else if ("EuroRadio".equals(appName)) {
+            frame = new EuroRadio();
+        } else if ("EuroWeb".equals(appName)) {
+            frame = new EuroWeb();
         } else {
             frame = new EuroMockAppFrame(appName);
         }
@@ -171,7 +181,8 @@ public class EuroShellFrame extends JFrame {
         int y = 0;
         int distance = 30;
         for (JInternalFrame frame : frames) {
-            if (frame.isIcon() || !frame.isVisible()) continue;
+            if (frame.isIcon() || !frame.isVisible())
+                continue;
             try {
                 frame.setMaximum(false);
             } catch (PropertyVetoException e) {
@@ -201,7 +212,8 @@ public class EuroShellFrame extends JFrame {
         }
 
         int count = visibleFrames.size();
-        if (count == 0) return;
+        if (count == 0)
+            return;
 
         int rows = (int) Math.sqrt(count);
         int cols = count / rows;
@@ -215,7 +227,8 @@ public class EuroShellFrame extends JFrame {
 
         for (int r = 0; r < rows; r++) {
             for (int c = 0; c < cols; c++) {
-                if (index >= count) break;
+                if (index >= count)
+                    break;
                 JInternalFrame frame = visibleFrames.get(index++);
                 try {
                     frame.setMaximum(false);
@@ -239,7 +252,8 @@ public class EuroShellFrame extends JFrame {
     }
 
     private void initIdleTimer() {
-        // Intercept all key presses, mouse clicks, and mouse moves globally across the JVM
+        // Intercept all key presses, mouse clicks, and mouse moves globally across the
+        // JVM
         Toolkit.getDefaultToolkit().addAWTEventListener(event -> {
             if (event instanceof MouseEvent me) {
                 if (me.getID() == MouseEvent.MOUSE_MOVED) {
@@ -253,7 +267,8 @@ public class EuroShellFrame extends JFrame {
                     } else {
                         lastActivityTime = System.currentTimeMillis();
                     }
-                } else if (me.getID() == MouseEvent.MOUSE_PRESSED || me.getID() == MouseEvent.MOUSE_RELEASED || me.getID() == MouseEvent.MOUSE_CLICKED) {
+                } else if (me.getID() == MouseEvent.MOUSE_PRESSED || me.getID() == MouseEvent.MOUSE_RELEASED
+                        || me.getID() == MouseEvent.MOUSE_CLICKED) {
                     resetIdleTimer();
                 }
             } else if (event instanceof KeyEvent ke) {
@@ -273,7 +288,8 @@ public class EuroShellFrame extends JFrame {
     }
 
     private void checkIdleTime() {
-        if (screensaverRunning) return;
+        if (screensaverRunning)
+            return;
 
         if (desktopPane.isScreensaverEnabled()) {
             long idleMs = System.currentTimeMillis() - lastActivityTime;
@@ -285,12 +301,14 @@ public class EuroShellFrame extends JFrame {
     }
 
     private synchronized void startScreensaver() {
-        if (screensaverRunning) return;
+        if (screensaverRunning)
+            return;
         screensaverRunning = true;
         initialMousePos = MouseInfo.getPointerInfo().getLocation();
 
         String appName = desktopPane.getScreensaverName();
-        if ("Kein".equalsIgnoreCase(appName) || "None".equalsIgnoreCase(appName) || appName == null || appName.isEmpty()) {
+        if ("Kein".equalsIgnoreCase(appName) || "None".equalsIgnoreCase(appName) || appName == null
+                || appName.isEmpty()) {
             screensaverRunning = false;
             return;
         }
@@ -307,7 +325,7 @@ public class EuroShellFrame extends JFrame {
             canvas.setSpeedMs(50);
             activeScreensaverFrame.getContentPane().setLayout(new BorderLayout());
             activeScreensaverFrame.getContentPane().add(canvas, BorderLayout.CENTER);
-            
+
             canvas.startAnimation();
         } else if ("EuroMaze".equals(appName)) {
             com.datazuul.euroworks.screensavers.EuroMazeCanvas canvas = new com.datazuul.euroworks.screensavers.EuroMazeCanvas();
@@ -333,7 +351,8 @@ public class EuroShellFrame extends JFrame {
     }
 
     private synchronized void stopScreensaver() {
-        if (!screensaverRunning) return;
+        if (!screensaverRunning)
+            return;
         screensaverRunning = false;
         initialMousePos = null;
 
