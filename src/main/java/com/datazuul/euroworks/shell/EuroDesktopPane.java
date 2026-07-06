@@ -41,6 +41,25 @@ public class EuroDesktopPane extends JDesktopPane {
         boolean outlineDrag = EuroPreferencesStore.isOutlineDragging();
         setDragMode(outlineDrag ? JDesktopPane.OUTLINE_DRAG_MODE : JDesktopPane.LIVE_DRAG_MODE);
 
+        setDesktopManager(new javax.swing.DefaultDesktopManager() {
+            @Override
+            public void dragFrame(javax.swing.JComponent f, int newX, int newY) {
+                if (newX < 0) {
+                    newX = 0;
+                }
+                super.dragFrame(f, newX, newY);
+            }
+
+            @Override
+            public void resizeFrame(javax.swing.JComponent f, int newX, int newY, int newWidth, int newHeight) {
+                if (newX < 0) {
+                    newWidth = newWidth + newX;
+                    newX = 0;
+                }
+                super.resizeFrame(f, newX, newY, newWidth, newHeight);
+            }
+        });
+
         // Apply screensaver preferences
         screensaverEnabled = EuroPreferencesStore.isScreensaverEnabled();
         screensaverName = EuroPreferencesStore.getScreensaverName();

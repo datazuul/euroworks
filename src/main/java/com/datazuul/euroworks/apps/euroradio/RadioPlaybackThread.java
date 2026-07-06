@@ -118,45 +118,72 @@ public class RadioPlaybackThread extends Thread {
         final String targetUrl = streamUrlStr;
 
         Thread downloaderThread = Thread.startVirtualThread(() -> {
-            InputStream is = null;
-            try {
-                URL url = URI.create(targetUrl).toURL();
-                connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestProperty("User-Agent", "EuroWorks-EuroRadio/1.0");
-                connection.setConnectTimeout(8000);
-                connection.setReadTimeout(8000);
-                connection.connect();
+            int retries = 0;
+            final int maxRetries = 5;
 
-                int code = connection.getResponseCode();
-                if (code >= 400) {
-                    throw new IOException("HTTP Error " + code);
-                }
+            while (running && retries < maxRetries) {
+                InputStream is = null;
+                HttpURLConnection conn = null;
+                try {
+                    URL url = URI.create(targetUrl).toURL();
+                    conn = (HttpURLConnection) url.openConnection();
+                    connection = conn;
+                    conn.setRequestProperty("User-Agent", "EuroWorks-EuroRadio/1.0");
+                    conn.setConnectTimeout(8000);
+                    conn.setReadTimeout(20000); // 20 seconds read timeout
+                    conn.connect();
 
-                is = new BufferedInputStream(connection.getInputStream());
-                byte[] buffer = new byte[4096];
-                int read;
+                    int code = conn.getResponseCode();
+                    if (code >= 400) {
+                        throw new IOException("HTTP Error " + code);
+                    }
 
-                while (running && (read = is.read(buffer)) != -1) {
-                    byte[] chunk = new byte[read];
-                    System.arraycopy(buffer, 0, chunk, 0, read);
-                    if (!bufferedStream.push(chunk)) {
-                        break; // Stream was closed
+                    is = new BufferedInputStream(conn.getInputStream());
+                    byte[] buffer = new byte[4096];
+                    int read;
+
+                    // Reset retries once we successfully connected and started reading
+                    retries = 0;
+
+                    while (running && (read = is.read(buffer)) != -1) {
+                        byte[] chunk = new byte[read];
+                        System.arraycopy(buffer, 0, chunk, 0, read);
+                        if (!bufferedStream.push(chunk)) {
+                            break; // Stream was closed
+                        }
+                    }
+
+                    if (running) {
+                        throw new IOException("Server closed connection");
+                    }
+                } catch (Exception ex) {
+                    if (running) {
+                        retries++;
+                        System.err.println("EuroRadio: Downloader thread error (attempt " + retries + "/" + maxRetries + "): " + ex.getMessage());
+                        if (retries >= maxRetries) {
+                            updateState(PlaybackState.ERROR, "Connection failed: " + ex.getMessage());
+                        } else {
+                            try {
+                                Thread.sleep(2000); // wait 2 seconds before retrying
+                            } catch (InterruptedException e) {
+                                Thread.currentThread().interrupt();
+                                break;
+                            }
+                        }
+                    }
+                } finally {
+                    if (is != null) {
+                        try {
+                            is.close();
+                        } catch (IOException ignored) {
+                        }
+                    }
+                    if (conn != null) {
+                        conn.disconnect();
                     }
                 }
-            } catch (Exception ex) {
-                if (running) {
-                    System.err.println("EuroRadio: Downloader thread error: " + ex.getMessage());
-                    updateState(PlaybackState.ERROR, ex.getMessage());
-                }
-            } finally {
-                if (is != null) {
-                    try {
-                        is.close();
-                    } catch (IOException ignored) {
-                    }
-                }
-                bufferedStream.markFinished();
             }
+            bufferedStream.markFinished();
         });
 
         // 2. Main Playback loop (Decoding and Playing)

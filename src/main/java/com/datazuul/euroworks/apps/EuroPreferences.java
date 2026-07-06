@@ -24,6 +24,9 @@ import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.swing.JInternalFrame;
+import javax.swing.UIManager;
+import javax.swing.JFrame;
+import javax.swing.JDialog;
 
 import com.datazuul.euroworks.shell.EuroDesktopPane;
 
@@ -46,6 +49,74 @@ public class EuroPreferences extends EuroAppFrame {
     private final JComboBox<String> themeComboBox;
     private final String[] themeNames = { "Euro (SVG)", "Windows 95 (Hybrid)", "Vector (Built-in)" };
     private final String[] themeValues = { "euro", "win95", "vector" };
+
+    private final JComboBox<String> lafComboBox;
+    private final String[] lafNames = {
+            // Dark Skins
+            "Radiance Graphite Chalk",
+            "Radiance Graphite",
+            "Radiance Graphite Glass",
+            "Radiance Magellan",
+            "Radiance Raven",
+            "Radiance Twilight",
+            // Light Skins
+            "Radiance Business",
+            "Radiance Business Blue Steel",
+            "Radiance Business Black Steel",
+            "Radiance Creme",
+            "Radiance Creme Coffee",
+            "Radiance Sahara",
+            "Radiance Moderate",
+            "Radiance Nebula",
+            "Radiance Nebula Amethyst",
+            "Radiance Nebula Brick Wall",
+            "Radiance Autumn",
+            "Radiance Mist Silver",
+            "Radiance Mist Aqua",
+            "Radiance Dust",
+            "Radiance Dust Coffee",
+            "Radiance Gemini",
+            "Radiance Mariner",
+            "Radiance Sentinel",
+            "Radiance Cerulean",
+            "Radiance Green Magic",
+            // Standard Look & Feels
+            "Metal (Cross-Platform)",
+            "System"
+    };
+    private final String[] lafValues = {
+            // Dark Skins
+            "org.pushingpixels.radiance.theming.api.skin.RadianceGraphiteChalkLookAndFeel",
+            "org.pushingpixels.radiance.theming.api.skin.RadianceGraphiteLookAndFeel",
+            "org.pushingpixels.radiance.theming.api.skin.RadianceGraphiteGlassLookAndFeel",
+            "org.pushingpixels.radiance.theming.api.skin.RadianceMagellanLookAndFeel",
+            "org.pushingpixels.radiance.theming.api.skin.RadianceRavenLookAndFeel",
+            "org.pushingpixels.radiance.theming.api.skin.RadianceTwilightLookAndFeel",
+            // Light Skins
+            "org.pushingpixels.radiance.theming.api.skin.RadianceBusinessLookAndFeel",
+            "org.pushingpixels.radiance.theming.api.skin.RadianceBusinessBlueSteelLookAndFeel",
+            "org.pushingpixels.radiance.theming.api.skin.RadianceBusinessBlackSteelLookAndFeel",
+            "org.pushingpixels.radiance.theming.api.skin.RadianceCremeLookAndFeel",
+            "org.pushingpixels.radiance.theming.api.skin.RadianceCremeCoffeeLookAndFeel",
+            "org.pushingpixels.radiance.theming.api.skin.RadianceSaharaLookAndFeel",
+            "org.pushingpixels.radiance.theming.api.skin.RadianceModerateLookAndFeel",
+            "org.pushingpixels.radiance.theming.api.skin.RadianceNebulaLookAndFeel",
+            "org.pushingpixels.radiance.theming.api.skin.RadianceNebulaAmethystLookAndFeel",
+            "org.pushingpixels.radiance.theming.api.skin.RadianceNebulaBrickWallLookAndFeel",
+            "org.pushingpixels.radiance.theming.api.skin.RadianceAutumnLookAndFeel",
+            "org.pushingpixels.radiance.theming.api.skin.RadianceMistSilverLookAndFeel",
+            "org.pushingpixels.radiance.theming.api.skin.RadianceMistAquaLookAndFeel",
+            "org.pushingpixels.radiance.theming.api.skin.RadianceDustLookAndFeel",
+            "org.pushingpixels.radiance.theming.api.skin.RadianceDustCoffeeLookAndFeel",
+            "org.pushingpixels.radiance.theming.api.skin.RadianceGeminiLookAndFeel",
+            "org.pushingpixels.radiance.theming.api.skin.RadianceMarinerLookAndFeel",
+            "org.pushingpixels.radiance.theming.api.skin.RadianceSentinelLookAndFeel",
+            "org.pushingpixels.radiance.theming.api.skin.RadianceCeruleanLookAndFeel",
+            "org.pushingpixels.radiance.theming.api.skin.RadianceGreenMagicLookAndFeel",
+            // Standard Look & Feels
+            "javax.swing.plaf.metal.MetalLookAndFeel",
+            "system"
+    };
 
     // Mouse Card components
     private final JCheckBox outlineDragCheckBox;
@@ -110,6 +181,25 @@ public class EuroPreferences extends EuroAppFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
         displayCard.add(themeComboBox, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.weightx = 0.0;
+        displayCard.add(new JLabel("Desktop Theme:"), gbc);
+
+        lafComboBox = new JComboBox<>(lafNames);
+        gbc.gridx = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
+        displayCard.add(lafComboBox, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.gridwidth = 2;
+        gbc.weighty = 1.0;
+        gbc.fill = GridBagConstraints.BOTH;
+        displayCard.add(Box.createVerticalGlue(), gbc);
 
         // 2. Mouse Card
         JPanel mouseCard = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
@@ -247,6 +337,27 @@ public class EuroPreferences extends EuroAppFrame {
                 break;
             }
         }
+
+        // Sync desktop theme (Look and Feel)
+        String activeLaf = EuroPreferencesStore.getLookAndFeelClass();
+        int lafIdx = 0; // Default to Graphite Chalk
+        for (int i = 0; i < lafValues.length; i++) {
+            if (lafValues[i].equalsIgnoreCase(activeLaf)) {
+                lafIdx = i;
+                break;
+            }
+            if ("javax.swing.plaf.metal.MetalLookAndFeel".equalsIgnoreCase(lafValues[i])
+                    && "javax.swing.plaf.metal.MetalLookAndFeel".equalsIgnoreCase(activeLaf)) {
+                lafIdx = i;
+                break;
+            }
+            if ("system".equalsIgnoreCase(lafValues[i])
+                    && UIManager.getSystemLookAndFeelClassName().equalsIgnoreCase(activeLaf)) {
+                lafIdx = i;
+                break;
+            }
+        }
+        lafComboBox.setSelectedIndex(lafIdx);
     }
 
     private void applySettings() {
@@ -268,6 +379,33 @@ public class EuroPreferences extends EuroAppFrame {
         int themeIdx = themeComboBox.getSelectedIndex();
         if (themeIdx >= 0 && themeIdx < themeValues.length) {
             EuroPreferencesStore.setIconThemeName(themeValues[themeIdx]);
+        }
+
+        int lafIdx = lafComboBox.getSelectedIndex();
+        if (lafIdx >= 0 && lafIdx < lafValues.length) {
+            String selectedLaf = lafValues[lafIdx];
+            if ("system".equalsIgnoreCase(selectedLaf)) {
+                selectedLaf = UIManager.getSystemLookAndFeelClassName();
+            }
+            String oldLaf = EuroPreferencesStore.getLookAndFeelClass();
+            if (!selectedLaf.equals(oldLaf)) {
+                EuroPreferencesStore.setLookAndFeelClass(selectedLaf);
+                try {
+                    if (selectedLaf.contains("radiance")) {
+                        JFrame.setDefaultLookAndFeelDecorated(true);
+                        JDialog.setDefaultLookAndFeelDecorated(true);
+                    } else {
+                        JFrame.setDefaultLookAndFeelDecorated(false);
+                        JDialog.setDefaultLookAndFeelDecorated(false);
+                    }
+                    UIManager.setLookAndFeel(selectedLaf);
+                    for (java.awt.Window window : java.awt.Window.getWindows()) {
+                        SwingUtilities.updateComponentTreeUI(window);
+                    }
+                } catch (Exception ex) {
+                    System.err.println("Could not switch Look & Feel: " + ex.getMessage());
+                }
+            }
         }
         EuroPreferencesStore.save();
 

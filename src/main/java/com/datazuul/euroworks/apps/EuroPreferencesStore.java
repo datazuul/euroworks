@@ -96,4 +96,12 @@ public class EuroPreferencesStore {
     public static void setIconThemeName(String name) {
         getPrefs().put("iconThemeName", name);
     }
+
+    public static String getLookAndFeelClass() {
+        return getPrefs().get("lookAndFeelClass", "org.pushingpixels.radiance.theming.api.skin.RadianceGraphiteChalkLookAndFeel");
+    }
+
+    public static void setLookAndFeelClass(String className) {
+        getPrefs().put("lookAndFeelClass", className);
+    }
 }

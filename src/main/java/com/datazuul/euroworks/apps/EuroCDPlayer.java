@@ -75,7 +75,6 @@ public class EuroCDPlayer extends EuroAppFrame {
     private static final int PLAYLIST_HEIGHT = 200;
 
     // Palette
-    private static final Color SILVER  = new Color(192, 192, 192);
     private static final Color SHADOW  = new Color(128, 128, 128);
     private static final Color DARK    = new Color(64,  64,  64);
     private static final Color HILIGHT = Color.WHITE;
@@ -163,7 +162,6 @@ public class EuroCDPlayer extends EuroAppFrame {
 
         // Layout panels
         JPanel content = new JPanel(new BorderLayout());
-        content.setBackground(SILVER);
         content.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
 
         // 1. LCD Status Display (North)
@@ -173,22 +171,17 @@ public class EuroCDPlayer extends EuroAppFrame {
 
         // 2. Control Center (Center)
         JPanel controlCenter = new JPanel(new BorderLayout());
-        controlCenter.setBackground(SILVER);
         controlCenter.setBorder(BorderFactory.createEmptyBorder(6, 0, 0, 0));
 
         // Left block of control buttons
         JPanel buttonGridWrap = new JPanel(new GridLayout(2, 1, 4, 4));
-        buttonGridWrap.setBackground(SILVER);
 
         // Row 1
         JPanel row1 = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
-        row1.setBackground(SILVER);
         JButton btnList = buildControlBtn("☰", "Open/Close Playlist");
         JButton btnSetA = buildControlBtn("SET A", "Set A-B Repeat");
-        btnSetA.setFont(new Font("SansSerif", Font.BOLD, 9));
         JButton btnSkipBack = buildControlBtn("⏮", "Previous Track");
         JButton btnScan = buildControlBtn("SCAN", "Intro Scan");
-        btnScan.setFont(new Font("SansSerif", Font.BOLD, 9));
         JButton btnSkipFwd = buildControlBtn("⏭", "Next Track");
         row1.add(btnList);
         row1.add(btnSetA);
@@ -199,17 +192,11 @@ public class EuroCDPlayer extends EuroAppFrame {
 
         // Row 2
         JPanel row2 = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
-        row2.setBackground(SILVER);
         JButton btnEject = buildControlBtn("⏏ EJECT", "Eject CD");
-        btnEject.setFont(new Font("SansSerif", Font.BOLD, 9));
         JButton btnStop = buildControlBtn("⏹ STOP", "Stop");
-        btnStop.setFont(new Font("SansSerif", Font.BOLD, 9));
         JButton btnRew = buildControlBtn("⏪ REW", "Fast Rewind");
-        btnRew.setFont(new Font("SansSerif", Font.BOLD, 9));
         JButton btnPlay = buildControlBtn("▶ PLAY", "Play");
-        btnPlay.setFont(new Font("SansSerif", Font.BOLD, 9));
         JButton btnFwd = buildControlBtn("⏩ FWD", "Fast Forward");
-        btnFwd.setFont(new Font("SansSerif", Font.BOLD, 9));
         row2.add(btnEject);
         row2.add(btnStop);
         row2.add(btnRew);
@@ -249,7 +236,6 @@ public class EuroCDPlayer extends EuroAppFrame {
     private JMenuBar buildMenuBar() {
         JMenuBar mb = new JMenuBar();
         JMenu pMenu = new JMenu("Player");
-        pMenu.setFont(new Font("SansSerif", Font.PLAIN, 11));
         
         JMenuItem playItem = new JMenuItem("Play");
         playItem.addActionListener(e -> playCD());
@@ -969,46 +955,9 @@ public class EuroCDPlayer extends EuroAppFrame {
     }
 
     private JButton buildControlBtn(String text, String tooltip) {
-        JButton btn = new JButton(text) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setColor(SILVER);
-                g2.fillRect(0, 0, getWidth(), getHeight());
-
-                boolean pressed = getModel().isPressed();
-                if (pressed) {
-                    g2.setColor(DARK);
-                    g2.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
-                    g2.setColor(SHADOW);
-                    g2.drawRect(1, 1, getWidth() - 3, getHeight() - 3);
-                } else {
-                    g2.setColor(HILIGHT);
-                    g2.drawLine(0, 0, getWidth() - 1, 0);
-                    g2.drawLine(0, 0, 0, getHeight() - 1);
-                    g2.setColor(DARK);
-                    g2.drawLine(getWidth() - 1, 0, getWidth() - 1, getHeight() - 1);
-                    g2.drawLine(0, getHeight() - 1, getWidth() - 1, getHeight() - 1);
-                    g2.setColor(SHADOW);
-                    g2.drawLine(getWidth() - 2, 1, getWidth() - 2, getHeight() - 2);
-                    g2.drawLine(1, getHeight() - 2, getWidth() - 2, getHeight() - 2);
-                }
-
-                g2.setFont(getFont());
-                g2.setColor(Color.BLACK);
-                FontMetrics fm = g2.getFontMetrics();
-                int tx = (getWidth() - fm.stringWidth(getText())) / 2 + (pressed ? 1 : 0);
-                int ty = (getHeight() + fm.getAscent() - fm.getDescent()) / 2 + (pressed ? 1 : 0);
-                g2.drawString(getText(), tx, ty);
-                g2.dispose();
-            }
-        };
-        btn.setFont(new Font("SansSerif", Font.PLAIN, 10));
-        btn.setBorderPainted(false);
-        btn.setFocusPainted(false);
-        btn.setOpaque(true);
+        JButton btn = new JButton(text);
         btn.setToolTipText(tooltip);
-        btn.setPreferredSize(new Dimension(54, 24));
+        btn.setPreferredSize(new Dimension(74, 26));
         return btn;
     }
 
@@ -1320,7 +1269,7 @@ public class EuroCDPlayer extends EuroAppFrame {
     private class BrandingPanel extends JPanel {
 
         BrandingPanel() {
-            setBackground(SILVER);
+            setOpaque(false);
         }
 
         @Override
@@ -1345,7 +1294,7 @@ public class EuroCDPlayer extends EuroAppFrame {
             g2.setColor(new Color(255, 255, 100, 160));
             g2.fill(new Arc2D.Double(cx + 1, cy + 1, r - 2, r - 2, 315, 45, Arc2D.PIE));
 
-            g2.setColor(SILVER);
+            g2.setColor(getBackground());
             g2.fillOval(cx + 10, cy + 10, 12, 12);
             g2.setColor(Color.BLACK);
             g2.drawOval(cx + 10, cy + 10, 12, 12);

@@ -10,6 +10,7 @@ import com.datazuul.euroworks.apps.EuroCDPlayer;
 import com.datazuul.euroworks.apps.EuroScan;
 import com.datazuul.euroworks.apps.euroradio.EuroRadio;
 import com.datazuul.euroworks.apps.euroweb.EuroWeb;
+import com.datazuul.euroworks.apps.eurotv.EuroTv;
 import com.datazuul.euroworks.screensavers.EuroPipes;
 import com.datazuul.euroworks.screensavers.EuroMaze;
 import com.datazuul.euroworks.screensavers.EuroBezier;
@@ -77,7 +78,7 @@ public class EuroShellFrame extends JFrame {
 
         String[] apps = { "EuroManager", "EuroWrite", "EuroDraw", "EuroCalc", "EuroFile", "EuroDex", "EuroMandelbrot",
                 "EuroPipes", "EuroMaze", "EuroBezier", "EuroStarfield", "EuroMines", "EuroBreakout", "EuroInvaders",
-                "EuroCDPlayer", "EuroScan", "EuroRadio", "EuroWeb", "EuroSync", "EuroPreferences" };
+                "EuroCDPlayer", "EuroScan", "EuroRadio", "EuroWeb", "EuroTv", "EuroSync", "EuroPreferences" };
         for (String appName : apps) {
             JMenuItem appItem = new JMenuItem(appName);
             appItem.addActionListener(e -> launchApp(appName));
@@ -168,12 +169,26 @@ public class EuroShellFrame extends JFrame {
             frame = new EuroRadio();
         } else if ("EuroWeb".equals(appName)) {
             frame = new EuroWeb();
+        } else if ("EuroTv".equals(appName)) {
+            frame = new EuroTv();
         } else if ("EuroSync".equals(appName)) {
             frame = new EuroSync();
         } else {
             frame = new EuroMockAppFrame(appName);
         }
         desktopPane.add(frame);
+
+        // Center the frame on the desktop pane
+        int desktopWidth = desktopPane.getWidth();
+        int desktopHeight = desktopPane.getHeight();
+        int frameWidth = frame.getWidth();
+        int frameHeight = frame.getHeight();
+        int targetX = (desktopWidth - frameWidth) / 2;
+        int targetY = (desktopHeight - frameHeight) / 2;
+        if (targetX < 0) targetX = 0;
+        if (targetY < 0) targetY = 0;
+        frame.setLocation(targetX, targetY);
+
         // Trigger dock active LED update on launch
         dock.updateActiveIndicators();
         try {

@@ -1,7 +1,6 @@
 package com.datazuul.euroworks;
 
 import com.datazuul.euroworks.shell.EuroShellFrame;
-import com.datazuul.euroworks.shell.EuroRetroTheme;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -12,7 +11,8 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-import javax.swing.plaf.metal.MetalLookAndFeel;
+import javax.swing.JFrame;
+import javax.swing.JDialog;
 import java.awt.GraphicsEnvironment;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -36,19 +36,26 @@ public class EuroworksApplication implements CommandLineRunner {
         // Setup external theme directory and copy resources if not present
         setupExternalTheme();
 
+        // Load preferences on startup
+        com.datazuul.euroworks.apps.EuroPreferencesStore.load();
+
         if (GraphicsEnvironment.isHeadless()) {
             logger.warn("Running in headless environment. Skipping GUI startup.");
             return;
         }
         SwingUtilities.invokeLater(() -> {
             try {
-                // Apply custom retro theme
-                MetalLookAndFeel.setCurrentTheme(new EuroRetroTheme());
-                // Turn off default bold fonts for a cleaner monospaced pixel look
-                UIManager.put("swing.boldMetal", Boolean.FALSE);
-                UIManager.setLookAndFeel(new MetalLookAndFeel());
+                JFrame.setDefaultLookAndFeelDecorated(true);
+                JDialog.setDefaultLookAndFeelDecorated(true);
+                String lafClass = com.datazuul.euroworks.apps.EuroPreferencesStore.getLookAndFeelClass();
+                UIManager.setLookAndFeel(lafClass);
             } catch (Exception e) {
-                logger.warn("Could not set custom retro look and feel, using default.", e);
+                logger.warn("Could not set look and feel from preferences, using fallback.", e);
+                try {
+                    UIManager.setLookAndFeel(new org.pushingpixels.radiance.theming.api.skin.RadianceGraphiteChalkLookAndFeel());
+                } catch (Exception ex) {
+                    // ignore
+                }
             }
             EuroShellFrame shellFrame = new EuroShellFrame();
             shellFrame.setVisible(true);

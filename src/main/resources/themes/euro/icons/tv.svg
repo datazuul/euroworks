@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
+  <!-- Antennae -->
+  <line x1="8" y1="3" x2="4" y2="0.5" stroke="#2d3748" stroke-width="0.8"/>
+  <line x1="8" y1="3" x2="12" y2="0.5" stroke="#2d3748" stroke-width="0.8"/>
+  <circle cx="4" cy="0.5" r="0.5" fill="#2d3748"/>
+  <circle cx="12" cy="0.5" r="0.5" fill="#2d3748"/>
+  
+  <!-- TV Casing -->
+  <rect x="1" y="3" width="14" height="11" rx="1.5" fill="#a0aec0" stroke="#2d3748" stroke-width="0.8"/>
+  
+  <!-- Screen -->
+  <rect x="2" y="4" width="10" height="9" rx="0.5" fill="#1a202c"/>
+  
+  <!-- Dial panel/speaker on the right -->
+  <rect x="13" y="5" width="1" height="1" rx="0.2" fill="#2d3748"/>
+  <rect x="13" y="7" width="1" height="1" rx="0.2" fill="#2d3748"/>
+  <circle cx="13.5" cy="11.5" r="0.5" fill="#e53e3e"/> <!-- Red power light -->
+</svg>

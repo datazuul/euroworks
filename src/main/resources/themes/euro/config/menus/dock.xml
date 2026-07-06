@@ -17,6 +17,7 @@
   <Group name="Net" title="Netzwerk" icon="net">
     <App name="EuroWeb" exec="EuroWeb" icon="web" />
     <App name="EuroRadio" exec="EuroRadio" icon="radio" />
+    <App name="EuroTv" exec="EuroTv" icon="tv" />
   </Group>
 
   <Group name="Apps" title="Anwendungen" icon="apps">

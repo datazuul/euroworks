@@ -46,7 +46,6 @@ public class EuroRadio extends EuroAppFrame {
     private static final String CONFIG_FILE = CONFIG_DIR + "/channels.json";
 
     // Colors & Fonts
-    private static final Color RETRO_BG = new Color(212, 208, 200);
     private static final Color LCD_BG = Color.BLACK;
     private static final Color LCD_FG = new Color(0, 220, 240); // Bright cyan digital look
     private static final Color LCD_MUTED = new Color(0, 90, 100);
@@ -90,7 +89,6 @@ public class EuroRadio extends EuroAppFrame {
 
         // Initialize UI panels
         JPanel root = new JPanel(new BorderLayout());
-        root.setBackground(RETRO_BG);
         root.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
 
         // 1. LCD & Player Controls (North)
@@ -110,7 +108,6 @@ public class EuroRadio extends EuroAppFrame {
 
     private JPanel buildPlayerPanel() {
         JPanel panel = new JPanel(new BorderLayout(8, 0));
-        panel.setBackground(RETRO_BG);
         panel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(0, 0, 2, 0, new Color(128, 128, 128)),
                 BorderFactory.createEmptyBorder(0, 0, 8, 0)));
@@ -146,17 +143,14 @@ public class EuroRadio extends EuroAppFrame {
 
         // B. Master Controls Panel (Right)
         JPanel controls = new JPanel(new GridLayout(2, 1, 0, 6));
-        controls.setBackground(RETRO_BG);
 
         // Volume Panel
         JPanel volPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 4, 0));
-        volPanel.setBackground(RETRO_BG);
         JLabel lblVol = new JLabel("Lautstärke:");
         lblVol.setFont(new Font("SansSerif", Font.PLAIN, 11));
 
         sliderVolume = new JSlider(0, 100, 80);
         sliderVolume.setPreferredSize(new Dimension(150, 20));
-        sliderVolume.setBackground(RETRO_BG);
         sliderVolume.addChangeListener(e -> {
             currentVolume = sliderVolume.getValue() / 100.0f;
             if (playbackThread != null) {
@@ -169,7 +163,6 @@ public class EuroRadio extends EuroAppFrame {
 
         // Quick play state buttons
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 6, 0));
-        buttonPanel.setBackground(RETRO_BG);
 
         JButton btnGlobalStop = buildRetroButton("⏹ Stopp");
         btnGlobalStop.setToolTipText("Wiedergabe stoppen");
@@ -186,7 +179,6 @@ public class EuroRadio extends EuroAppFrame {
 
     private JTabbedPane buildTabsPanel() {
         JTabbedPane tabs = new JTabbedPane();
-        tabs.setFont(new Font("SansSerif", Font.PLAIN, 11));
 
         // Tab 1: Favorites
         tabs.addTab("⭐ Favoriten (Kanäle)", buildFavoritesTab());
@@ -199,7 +191,6 @@ public class EuroRadio extends EuroAppFrame {
 
     private JPanel buildFavoritesTab() {
         JPanel panel = new JPanel(new BorderLayout(8, 0));
-        panel.setBackground(RETRO_BG);
         panel.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
 
         modelFavorites = new DefaultListModel<>();
@@ -233,7 +224,6 @@ public class EuroRadio extends EuroAppFrame {
         // Buttons (Right side of List)
         JPanel buttons = new JPanel();
         buttons.setLayout(new BoxLayout(buttons, BoxLayout.Y_AXIS));
-        buttons.setBackground(RETRO_BG);
 
         btnPlayFav = buildRetroButton("▶ Abspielen");
         btnPlayFav.setEnabled(false);
@@ -268,12 +258,10 @@ public class EuroRadio extends EuroAppFrame {
 
     private JPanel buildSearchTab() {
         JPanel panel = new JPanel(new BorderLayout(0, 8));
-        panel.setBackground(RETRO_BG);
         panel.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
 
         // Top Search Bar
         JPanel searchBar = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
-        searchBar.setBackground(RETRO_BG);
 
         JLabel lblQuery = new JLabel("Name/Genre:");
         lblQuery.setFont(new Font("SansSerif", Font.PLAIN, 11));
@@ -313,7 +301,6 @@ public class EuroRadio extends EuroAppFrame {
 
         // Table actions panel
         JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 6, 0));
-        actionPanel.setBackground(RETRO_BG);
 
         btnPlaySearch = buildRetroButton("▶ Ausgewählte Station abspielen");
         btnPlaySearch.setEnabled(false);
@@ -341,7 +328,7 @@ public class EuroRadio extends EuroAppFrame {
     }
 
     private JButton buildRetroButton(String label) {
-        return new com.datazuul.euroworks.ui.EuroButton(label);
+        return new JButton(label);
     }
 
     // ── Favorites IO ─────────────────────────────────────────────────────────

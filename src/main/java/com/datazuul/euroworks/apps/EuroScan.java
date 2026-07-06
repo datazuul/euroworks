@@ -99,7 +99,6 @@ public class EuroScan extends EuroAppFrame {
 
         // ── Top toolbar ──────────────────────────────────────────────────────
         JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 5));
-        toolbar.setBackground(new Color(212, 208, 200));
         toolbar.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(128, 128, 128)));
 
         btnSelect = buildRetroButton("📋  Scanner...");
@@ -149,7 +148,6 @@ public class EuroScan extends EuroAppFrame {
 
         // ── Info rows ────────────────────────────────────────────────────────
         JPanel infoRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 2));
-        infoRow.setBackground(new Color(212, 208, 200));
         infoRow.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(160, 160, 160)));
         lblScanner = new JLabel("Scanner: (automatisch – erster verfügbarer)");
         lblScanner.setFont(new Font("Courier New", Font.PLAIN, 10));
@@ -157,14 +155,12 @@ public class EuroScan extends EuroAppFrame {
         infoRow.add(lblScanner);
 
         JPanel statusRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 2));
-        statusRow.setBackground(new Color(212, 208, 200));
         lblStatus = new JLabel("Bereit. Bild auswählen mit Drag, dann Zuschneiden.");
         lblStatus.setFont(new Font("Courier New", Font.PLAIN, 11));
         lblStatus.setForeground(new Color(64, 64, 64));
         statusRow.add(lblStatus);
 
         JPanel north = new JPanel(new BorderLayout());
-        north.setBackground(new Color(212, 208, 200));
         north.add(toolbar,    BorderLayout.NORTH);
         north.add(infoRow,    BorderLayout.CENTER);
         north.add(statusRow,  BorderLayout.SOUTH);
@@ -182,7 +178,6 @@ public class EuroScan extends EuroAppFrame {
     private JMenuBar buildMenuBar() {
         JMenuBar mb = new JMenuBar();
         JMenu menu = new JMenu("Scan");
-        menu.setFont(new Font("SansSerif", Font.PLAIN, 11));
 
         JMenuItem selectItem = new JMenuItem("Scanner auswählen...");
         selectItem.addActionListener(e -> selectScanner());
@@ -195,7 +190,6 @@ public class EuroScan extends EuroAppFrame {
         menu.add(scanItem);
 
         JMenu editMenu = new JMenu("Bearbeiten");
-        editMenu.setFont(new Font("SansSerif", Font.PLAIN, 11));
         JMenuItem cropItem = new JMenuItem("Zuschneiden");
         cropItem.addActionListener(e -> cropImage());
         editMenu.add(cropItem);
@@ -474,12 +468,11 @@ public class EuroScan extends EuroAppFrame {
     }
 
     private JButton buildRetroButton(String label) {
-        return new com.datazuul.euroworks.ui.EuroButton(label);
+        return new JButton(label);
     }
 
     private JButton buildSmallButton(String label, String tooltip) {
-        JButton btn = new com.datazuul.euroworks.ui.EuroButton(label);
-        btn.setFont(new Font("SansSerif", Font.BOLD, 12));
+        JButton btn = new JButton(label);
         btn.setToolTipText(tooltip);
         return btn;
     }

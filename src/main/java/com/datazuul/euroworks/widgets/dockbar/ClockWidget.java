@@ -1,4 +1,4 @@
-package com.datazuul.euroworks.widgets.taskbar;
+package com.datazuul.euroworks.widgets.dockbar;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -18,7 +18,7 @@ import javax.swing.Timer;
  * Renders a sunken inset box (like Win95 clock) showing HH:mm in 24-hour
  * format.
  */
-public class TaskbarClock extends JPanel {
+public class ClockWidget extends JPanel {
 
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("HH:mm");
     private static final Color SILVER = new Color(192, 192, 192);
@@ -28,7 +28,7 @@ public class TaskbarClock extends JPanel {
 
     private String timeText = "";
 
-    public TaskbarClock() {
+    public ClockWidget() {
         setOpaque(false);
         setBorder(null);
         setPreferredSize(new Dimension(60, 25));

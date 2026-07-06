@@ -24,6 +24,7 @@ public class EuroIconThemeManager {
         CANDIDATES.put("computer", new String[] { "computer", "devices/computer", "places/user-desktop", "devices/video-display" });
         CANDIDATES.put("document", new String[] { "document", "apps/accessories-text-editor", "mimetypes/text-x-generic" });
         CANDIDATES.put("preferences", new String[] { "preferences", "apps/preferences-desktop-theme", "apps/preferences-system", "apps/preferences-system-session" });
+        CANDIDATES.put("tv", new String[] { "tv", "apps/tv", "multimedia-player" });
         CANDIDATES.put("cdplayer", new String[] { "cdplayer", "devices/media-optical", "devices/drive-optical", "apps/multimedia-player" });
         CANDIDATES.put("radio", new String[] { "radio", "devices/audio-card", "apps/multimedia-player" });
         CANDIDATES.put("web", new String[] { "web", "apps/internet-web-browser" });
@@ -152,6 +153,9 @@ public class EuroIconThemeManager {
         if ("sync".equalsIgnoreCase(name) || "eurosync".equalsIgnoreCase(name)) {
             return new SyncFallbackIcon();
         }
+        if ("tv".equalsIgnoreCase(name) || "eurotv".equalsIgnoreCase(name)) {
+            return new TvFallbackIcon();
+        }
         return new GenericAppFallbackIcon();
     }
 
@@ -224,6 +228,43 @@ public class EuroIconThemeManager {
             g2.drawLine(ix + 2, iy + 8, ix, iy + 10);
             g2.drawLine(ix + 2, iy + 8, ix + 2, iy + 5);
             
+            g2.dispose();
+        }
+
+        @Override public int getIconWidth() { return 16; }
+        @Override public int getIconHeight() { return 16; }
+    }
+
+    private static class TvFallbackIcon implements Icon {
+        @Override
+        public void paintIcon(Component c, Graphics g, int x, int y) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+            int ix = x + (getIconWidth() - 14) / 2;
+            int iy = y + (getIconHeight() - 12) / 2;
+
+            // Draw antennae
+            g2.setColor(Color.DARK_GRAY);
+            g2.drawLine(ix + 7, iy + 2, ix + 3, iy);
+            g2.drawLine(ix + 7, iy + 2, ix + 11, iy);
+
+            // Draw casing
+            g2.setColor(new Color(128, 128, 128));
+            g2.fillRect(ix, iy + 2, 14, 10);
+            g2.setColor(Color.BLACK);
+            g2.drawRect(ix, iy + 2, 13, 9);
+
+            // Draw screen
+            g2.setColor(new Color(30, 30, 30));
+            g2.fillRect(ix + 1, iy + 3, 9, 7);
+
+            // Draw controls
+            g2.setColor(Color.BLACK);
+            g2.fillRect(ix + 11, iy + 4, 1, 1);
+            g2.fillRect(ix + 11, iy + 6, 1, 1);
+            g2.setColor(Color.RED);
+            g2.fillRect(ix + 11, iy + 9, 1, 1); // Power light
+
             g2.dispose();
         }
 

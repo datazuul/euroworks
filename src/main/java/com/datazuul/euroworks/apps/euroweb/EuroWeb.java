@@ -26,7 +26,7 @@ public class EuroWeb extends EuroAppFrame {
 
     private static final int DEFAULT_WIDTH = 850;
     private static final int DEFAULT_HEIGHT = 650;
-    private static final Color RETRO_BG = new Color(212, 208, 200); // Standard Win95 Silver
+
 
     private JFXPanel jfxPanel;
     private WebEngine webEngine;
@@ -50,7 +50,6 @@ public class EuroWeb extends EuroAppFrame {
 
         // Create main Swing container
         JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBackground(RETRO_BG);
         mainPanel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
 
         // 1. Top Panel: Navigation & URL bar
@@ -72,12 +71,10 @@ public class EuroWeb extends EuroAppFrame {
 
     private JPanel buildNavigationPanel() {
         JPanel navPanel = new JPanel(new BorderLayout(6, 0));
-        navPanel.setBackground(RETRO_BG);
         navPanel.setBorder(BorderFactory.createEmptyBorder(2, 2, 6, 2));
 
         // Left control buttons
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
-        buttonPanel.setBackground(RETRO_BG);
 
         btnBack = buildRetroNavButton("◀ Zurück");
         btnBack.setToolTipText("Go Back");
@@ -111,7 +108,6 @@ public class EuroWeb extends EuroAppFrame {
 
         // Address panel (Center)
         JPanel addressPanel = new JPanel(new BorderLayout(4, 0));
-        addressPanel.setBackground(RETRO_BG);
 
         JLabel lblAddress = new JLabel("Adresse: ");
         lblAddress.setFont(new Font("Courier New", Font.BOLD, 12));
@@ -147,7 +143,6 @@ public class EuroWeb extends EuroAppFrame {
         // Throbber animation widget (Right)
         throbber = new ThrobberPanel();
         JPanel throbberWrap = new JPanel(new FlowLayout(FlowLayout.RIGHT, 4, 0));
-        throbberWrap.setBackground(RETRO_BG);
         throbberWrap.add(throbber);
         navPanel.add(throbberWrap, BorderLayout.EAST);
 
@@ -156,7 +151,6 @@ public class EuroWeb extends EuroAppFrame {
 
     private JPanel buildStatusPanel() {
         JPanel statusPanel = new JPanel(new BorderLayout(8, 0));
-        statusPanel.setBackground(RETRO_BG);
         statusPanel.setBorder(BorderFactory.createEmptyBorder(4, 2, 2, 2));
 
         lblStatus = new JLabel("Bereit");
@@ -169,7 +163,6 @@ public class EuroWeb extends EuroAppFrame {
         progressBar.setStringPainted(true);
         progressBar.setFont(new Font("Courier New", Font.PLAIN, 10));
         progressBar.setForeground(new Color(0, 90, 110)); // Steel Blue
-        progressBar.setBackground(RETRO_BG);
         progressBar.setBorder(BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.LOWERED));
         progressBar.setVisible(false);
         statusPanel.add(progressBar, BorderLayout.EAST);
@@ -178,9 +171,7 @@ public class EuroWeb extends EuroAppFrame {
     }
 
     private JButton buildRetroNavButton(String label) {
-        JButton btn = new com.datazuul.euroworks.ui.EuroButton(label, RETRO_BG, Color.BLACK);
-        btn.setFont(new Font("Courier New", Font.BOLD, 11));
-        return btn;
+        return new JButton(label);
     }
 
     // ── JavaFX Engine Integration ───────────────────────────────────────────
@@ -400,7 +391,7 @@ public class EuroWeb extends EuroAppFrame {
 
         public ThrobberPanel() {
             setPreferredSize(new Dimension(22, 22));
-            setBackground(RETRO_BG);
+            setOpaque(false);
             
             // Increment angle every 80ms for rotating animation
             timer = new Timer(80, e -> {
