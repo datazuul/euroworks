@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
+  <!-- Back Window -->
+  <rect x="2" y="5" width="9" height="9" rx="0.8" fill="#d0d0d0" stroke="#404040" stroke-width="1"/>
+  <rect x="3" y="6" width="7" height="1.8" fill="#000080"/>
+  <!-- Front Window -->
+  <rect x="5" y="2" width="9" height="9" rx="0.8" fill="#f0f0f0" stroke="#404040" stroke-width="1"/>
+  <rect x="6" y="3" width="7" height="1.8" fill="#000080"/>
+  <!-- Content Mock -->
+  <line x1="7" y1="6" x2="12" y2="6" stroke="#808080" stroke-width="0.8"/>
+  <line x1="7" y1="8" x2="10" y2="8" stroke="#808080" stroke-width="0.8"/>
+</svg>

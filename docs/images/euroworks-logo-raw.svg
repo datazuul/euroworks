@@ -1,0 +1,65 @@
+<svg
+  width="240"
+  height="240"
+  viewBox="0 0 240 240"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <!-- Hintergrund optional, hier transparent -->
+  <!-- <rect width="240" height="240" fill="black" /> -->
+
+  <!-- Grundfarbe des Logos -->
+  <g fill="#808080">
+
+    <!-- Stilisiertes C (Euro-Grundform, leicht modernisiert) -->
+    <path d="
+      M 60 60
+      Q 40 90 40 120
+      Q 40 150 60 180
+      Q 90 210 140 210
+      Q 170 210 190 195
+      L 180 180
+      Q 165 190 140 190
+      Q 100 190 75 165
+      Q 55 145 55 120
+      Q 55 95 75 75
+      Q 100 50 140 50
+      Q 165 50 180 60
+      L 190 45
+      Q 170 30 140 30
+      Q 90 30 60 60
+      Z
+    "/>
+
+    <!-- Drei horizontale, futuristische Balken -->
+    <!-- Oberer Balken -->
+    <path d="
+      M 70 85
+      L 170 85
+      L 185 95
+      L 170 105
+      L 70 105
+      Z
+    "/>
+
+    <!-- Mittlerer Balken (etwas länger) -->
+    <path d="
+      M 60 115
+      L 180 115
+      L 195 125
+      L 180 135
+      L 60 135
+      Z
+    "/>
+
+    <!-- Unterer Balken -->
+    <path d="
+      M 70 145
+      L 170 145
+      L 185 155
+      L 170 165
+      L 70 165
+      Z
+    "/>
+
+  </g>
+</svg>

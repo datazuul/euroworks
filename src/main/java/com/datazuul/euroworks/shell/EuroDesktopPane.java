@@ -20,8 +20,8 @@ public class EuroDesktopPane extends JDesktopPane {
         // Load settings from persistent preferences store
         EuroPreferencesStore.load();
 
-        // Load branding logo
-        logoIcon = new FlatSVGIcon("themes/euro/icons/euroworks_logo.svg", 300, 80);
+        // Load branding logo at a smaller width (100px)
+        logoIcon = new FlatSVGIcon("themes/euro/icons/euroworks_logo.svg", 100, 80);
 
         // Apply color
         int colorIdx = EuroPreferencesStore.getDesktopColorIndex();
@@ -84,15 +84,24 @@ public class EuroDesktopPane extends JDesktopPane {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        // Paint the background solid custom color
-        g.setColor(customColor);
-        g.fillRect(0, 0, getWidth(), getHeight());
+        java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
+        g2.setRenderingHint(java.awt.RenderingHints.KEY_RENDERING, java.awt.RenderingHints.VALUE_RENDER_QUALITY);
+        
+        // 1. Paint gradient background from top-left to bottom-right
+        java.awt.GradientPaint gp = new java.awt.GradientPaint(
+            0, 0, new Color(0x364252),
+            getWidth(), getHeight(), new Color(0x1D2029)
+        );
+        g2.setPaint(gp);
+        g2.fillRect(0, 0, getWidth(), getHeight());
 
-        // Paint centered branding logo
+        // 2. Paint small logo in bottom-right corner
         if (logoIcon != null) {
-            int lx = (getWidth() - logoIcon.getIconWidth()) / 2;
-            int ly = (getHeight() - logoIcon.getIconHeight()) / 2;
-            logoIcon.paintIcon(this, g, lx, ly);
+            int lx = getWidth() - logoIcon.getIconWidth() - 20;
+            int ly = getHeight() - logoIcon.getIconHeight() - 20;
+            logoIcon.paintIcon(this, g2, lx, ly);
         }
+        
+        g2.dispose();
     }
 }

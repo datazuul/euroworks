@@ -45,6 +45,12 @@ public class EuroIconThemeManager {
         CANDIDATES.put("sync", new String[] { "sync", "apps/system-software-update", "actions/sync" });
         CANDIDATES.put("eurosync", new String[] { "sync", "apps/system-software-update", "actions/sync" });
         CANDIDATES.put("start", new String[] { "start", "apps/application-default-icon" });
+        CANDIDATES.put("work", new String[] { "work", "places/folder" });
+        CANDIDATES.put("games", new String[] { "games", "apps/input-gaming" });
+        CANDIDATES.put("net", new String[] { "web", "apps/internet-web-browser" });
+        CANDIDATES.put("apps", new String[] { "apps", "apps/utilities-terminal" });
+        CANDIDATES.put("tools", new String[] { "tools", "apps/preferences-system" });
+        CANDIDATES.put("system", new String[] { "computer", "devices/computer" });
     }
 
     /** Clear the cached icons (e.g., when the active theme is changed). */
@@ -53,26 +59,33 @@ public class EuroIconThemeManager {
     }
 
     /**
-     * Retrieves an icon by name. Matches the active theme name.
-     * Looks for name.svg first, then name.png, and falls back to vector icons.
+     * Retrieves an icon by name.
      */
     public static synchronized Icon getIcon(String name) {
+        return getIcon(name, 16, 16);
+    }
+
+    /**
+     * Retrieves an icon by name and custom size. Matches the active theme name.
+     * Looks for name.svg first, then name.png, and falls back to vector icons.
+     */
+    public static synchronized Icon getIcon(String name, int width, int height) {
         String activeTheme = EuroPreferencesStore.getIconThemeName();
         if ("vector".equalsIgnoreCase(activeTheme)) {
             return getFallbackIcon(name);
         }
 
-        String cacheKey = activeTheme + ":" + name;
+        String cacheKey = activeTheme + ":" + name + ":" + width + "x" + height;
         if (iconCache.containsKey(cacheKey)) {
             return iconCache.get(cacheKey);
         }
 
-        Icon resolved = loadThemeIcon(activeTheme, name);
+        Icon resolved = loadThemeIcon(activeTheme, name, width, height);
         iconCache.put(cacheKey, resolved);
         return resolved;
     }
 
-    private static Icon loadThemeIcon(String theme, String name) {
+    private static Icon loadThemeIcon(String theme, String name, int width, int height) {
         String[] paths = CANDIDATES.get(name.toLowerCase());
         if (paths == null) {
             paths = new String[] { name };
@@ -86,7 +99,8 @@ public class EuroIconThemeManager {
             File extSvg = new File(externalIconBase, "icons/" + path + ".svg");
             if (extSvg.exists()) {
                 try {
-                    return new com.formdev.flatlaf.extras.FlatSVGIcon(extSvg);
+                    com.formdev.flatlaf.extras.FlatSVGIcon svgIcon = new com.formdev.flatlaf.extras.FlatSVGIcon(extSvg);
+                    return svgIcon.derive(width, height);
                 } catch (Throwable t) {
                     // ignore and fallback to classpath
                 }
@@ -97,7 +111,7 @@ public class EuroIconThemeManager {
                 String svgPath = "themes/" + theme + "/icons/" + path + ".svg";
                 URL url = EuroIconThemeManager.class.getClassLoader().getResource(svgPath);
                 if (url != null) {
-                    return new com.formdev.flatlaf.extras.FlatSVGIcon(svgPath, 16, 16);
+                    return new com.formdev.flatlaf.extras.FlatSVGIcon(svgPath, width, height);
                 }
             } catch (Throwable t) {
                 // ignore
@@ -107,7 +121,8 @@ public class EuroIconThemeManager {
             File extPng = new File(externalIconBase, "icons/" + path + ".png");
             if (extPng.exists()) {
                 try {
-                    return new ImageIcon(extPng.getAbsolutePath());
+                    ImageIcon img = new ImageIcon(extPng.getAbsolutePath());
+                    return new ImageIcon(img.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH));
                 } catch (Throwable t) {
                     // ignore
                 }
@@ -118,7 +133,8 @@ public class EuroIconThemeManager {
                 String pngPath = "/themes/" + theme + "/icons/" + path + ".png";
                 URL url = EuroIconThemeManager.class.getResource(pngPath);
                 if (url != null) {
-                    return new ImageIcon(url);
+                    ImageIcon img = new ImageIcon(url);
+                    return new ImageIcon(img.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH));
                 }
             } catch (Exception e) {
                 // ignore

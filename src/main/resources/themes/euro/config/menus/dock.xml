@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Dock>
+  <!-- Groups -->
+  <Group name="Work" title="Arbeit" icon="work">
+    <App name="EuroManager" exec="EuroManager" icon="file" />
+    <App name="EuroWrite" exec="EuroWrite" icon="document" />
+    <App name="EuroDraw" exec="EuroDraw" icon="paint" />
+    <App name="EuroCalc" exec="EuroCalc" icon="calc" />
+  </Group>
+
+  <Group name="Games" title="Spiele" icon="games">
+    <App name="EuroMines" exec="EuroMines" icon="mines" />
+    <App name="EuroBreakout" exec="EuroBreakout" icon="breakout" />
+    <App name="EuroInvaders" exec="EuroInvaders" icon="invaders" />
+  </Group>
+
+  <Group name="Net" title="Netzwerk" icon="net">
+    <App name="EuroWeb" exec="EuroWeb" icon="web" />
+    <App name="EuroRadio" exec="EuroRadio" icon="radio" />
+  </Group>
+
+  <Group name="Apps" title="Anwendungen" icon="apps">
+    <App name="EuroCDPlayer" exec="EuroCDPlayer" icon="cdplayer" />
+    <App name="EuroScan" exec="EuroScan" icon="scan" />
+    <App name="EuroDex" exec="EuroDex" icon="dex" />
+  </Group>
+
+  <Group name="Tools" title="Dienstprogramme" icon="tools">
+    <App name="EuroPreferences" exec="EuroPreferences" icon="preferences" />
+    <App name="EuroMandelbrot" exec="EuroMandelbrot" icon="mandelbrot" />
+  </Group>
+
+  <Group name="System" title="System" icon="system">
+    <App name="EuroPipes" exec="EuroPipes" icon="pipes" />
+    <App name="EuroMaze" exec="EuroMaze" icon="maze" />
+    <App name="EuroBezier" exec="EuroBezier" icon="bezier" />
+    <App name="EuroStarfield" exec="EuroStarfield" icon="starfield" />
+  </Group>
+</Dock>

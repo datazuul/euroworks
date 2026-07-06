@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
+  <!-- Briefcase body -->
+  <rect x="2" y="4" width="12" height="10" rx="1" fill="#c0c0c0" stroke="#404040" stroke-width="1"/>
+  <!-- Handle -->
+  <path d="M5 4V2.5C5 2.22 5.22 2 5.5 2H10.5C10.78 2 11 2.22 11 2.5V4" fill="none" stroke="#404040" stroke-width="1"/>
+  <!-- Golden Lock -->
+  <rect x="7" y="7" width="2" height="2" fill="#d4af37" stroke="#404040" stroke-width="0.5"/>
+  <!-- Leather straps -->
+  <rect x="4" y="4" width="1.5" height="10" fill="#a0a0a0"/>
+  <rect x="10.5" y="4" width="1.5" height="10" fill="#a0a0a0"/>
+</svg>

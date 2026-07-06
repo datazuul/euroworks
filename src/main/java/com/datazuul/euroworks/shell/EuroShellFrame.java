@@ -29,7 +29,8 @@ import java.util.List;
 public class EuroShellFrame extends JFrame {
 
     private final EuroDesktopPane desktopPane;
-    private final EuroTaskbar taskbar;
+    private final EuroDock dock;
+    private EuroGroupPanel activeGroupPanel = null;
 
     private Timer idleTimer = null;
     private long lastActivityTime = System.currentTimeMillis();
@@ -50,14 +51,13 @@ public class EuroShellFrame extends JFrame {
         // Desktop pane fills the centre
         desktopPane = new EuroDesktopPane();
 
-        // Taskbar sits at the bottom
-        taskbar = new EuroTaskbar(desktopPane);
-        taskbar.setLaunchCallback(e -> launchApp(e.getActionCommand()));
+        // Dock sits on the left side
+        dock = new EuroDock(desktopPane, this::toggleGroupPanel);
 
-        // Wrap desktop + taskbar in a BorderLayout panel
+        // Wrap desktop + dock in a BorderLayout panel
         JPanel root = new JPanel(new BorderLayout());
         root.add(desktopPane, BorderLayout.CENTER);
-        root.add(taskbar, BorderLayout.SOUTH);
+        root.add(dock, BorderLayout.WEST);
         setContentPane(root);
 
         // Build global menu bar
@@ -174,7 +174,8 @@ public class EuroShellFrame extends JFrame {
             frame = new EuroMockAppFrame(appName);
         }
         desktopPane.add(frame);
-        taskbar.registerFrame(frame);
+        // Trigger dock active LED update on launch
+        dock.updateActiveIndicators();
         try {
             frame.setSelected(true);
         } catch (PropertyVetoException e) {
@@ -431,5 +432,26 @@ public class EuroShellFrame extends JFrame {
             }
             setVisible(true);
         }
+    }
+
+    private void toggleGroupPanel(String groupName, List<org.w3c.dom.Element> apps) {
+        if (activeGroupPanel != null) {
+            desktopPane.remove(activeGroupPanel);
+            activeGroupPanel = null;
+        }
+
+        if (groupName != null && apps != null && !apps.isEmpty()) {
+            activeGroupPanel = new EuroGroupPanel(groupName, apps, this::launchApp);
+            
+            // Calculate height/width based on items
+            int items = apps.size();
+            int width = Math.min(600, 30 + items * 100);
+            int height = 110;
+            activeGroupPanel.setBounds(90, 20, width, height);
+
+            // Add behind active windows
+            desktopPane.add(activeGroupPanel, Integer.valueOf(JLayeredPane.DEFAULT_LAYER - 5));
+        }
+        desktopPane.repaint();
     }
 }

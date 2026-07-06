@@ -1,27 +1,75 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 80" width="300" height="80">
-  <defs>
-    <!-- Star definition (Scale 1.5x larger, radius 6px) -->
-    <polygon id="star" points="0,-6 1.8,-1.8 6,-1.8 2.7,0.9 3.9,5.1 0,2.7 -3.9,5.1 -2.7,0.9 -6,-1.8 -1.8,-1.8" fill="#ffeb3b"/>
-  </defs>
-
-  <!-- Star Circle wrapping the 'E' with radius 31px -->
-  <g transform="translate(45, 32)">
-    <!-- The E in the center (aligned on baseline Y=48, offset Y=16 from circle center Y=32) -->
-    <text x="0" y="16" font-family="'Segoe UI', -apple-system, sans-serif" font-weight="900" font-size="44" font-style="italic" fill="#60a5fa" text-anchor="middle">E</text>
-    
-    <!-- 10 Stars wrapping E with 31px radius -->
-    <use href="#star" x="0" y="-31" />
-    <use href="#star" x="15.5" y="-26.85" />
-    <use href="#star" x="26.85" y="-15.5" />
-    <use href="#star" x="-15.5" y="-26.85" />
-    <use href="#star" x="-26.85" y="-15.5" />
-    <use href="#star" x="-31" y="0" />
-    <use href="#star" x="-26.85" y="15.5" />
-    <use href="#star" x="-15.5" y="26.85" />
-    <use href="#star" x="0" y="31" />
-    <use href="#star" x="15.5" y="26.85" />
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 200 160"
+   width="200"
+   height="160"
+   version="1.1"
+   id="svg4"
+   sodipodi:docname="euroworks_logo_neu.svg"
+   inkscape:version="1.4.3 (0d15f75, 2025-12-25)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="namedview4"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="5.1574601"
+     inkscape:cx="100.14619"
+     inkscape:cy="110.81036"
+     inkscape:window-width="2560"
+     inkscape:window-height="1369"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g3" />
+  <!-- Group with skew transform centered perfectly over the text -->
+  <g
+     transform="matrix(1,0,-0.21255656,1,39.862897,14)"
+     id="g4">
+    <!-- Main E Emblem (solid slate blue/gray) -->
+    <g
+       fill="#5a6d80"
+       id="g3">
+      <!-- Top Part -->
+      <path
+         d="m 80,31 h 35 L 109.01366,43.745045 75,42 C 64.903321,41.481998 57,45 57,48 l 0,10 H 42 V 48 C 42,37 65,31 80,31 Z"
+         id="path1"
+         sodipodi:nodetypes="sccssccss"
+         style="fill:#c2c2c2;fill-opacity:1" />
+      <!-- Bottom Part -->
+      <path
+         d="m 42,72 h 15 l 0,10 c 0,3 8,6 18,6 h 40 L 109.40145,100.74505 80,99 C 64.835718,98.099964 42,93 42,82 Z"
+         id="path2"
+         sodipodi:nodetypes="ccssccssc"
+         style="stroke:none;stroke-opacity:1;fill:#c2c2c2;fill-opacity:1" />
+      <!-- Protruding Middle Bar -->
+      <path
+         d="M 30.070254,60.418318 89.752664,60.224424 85.888478,69.775576 30,69 Z"
+         id="path3"
+         sodipodi:nodetypes="ccccc"
+         style="fill:#c2c2c2;fill-opacity:1" />
+    </g>
   </g>
-
-  <!-- The rest of the text "uroWorks" aligned on baseline Y=48, flat on one line, solid pastel fills -->
-  <text x="56" y="48" font-family="'Segoe UI', -apple-system, sans-serif" font-weight="900" font-size="38" font-style="italic"><tspan fill="#60a5fa">uro</tspan><tspan fill="#93c5fd">Works</tspan></text>
+  <!-- Center Text EuroWorks underneath (keeps it upright for legibility) -->
+  <text
+     x="100"
+     y="142"
+     font-family="system-ui, -apple-system, sans-serif"
+     font-size="20"
+     font-weight="bold"
+     fill="#5a6d80"
+     text-anchor="middle"
+     letter-spacing="1"
+     id="text4"
+     style="fill:#c2c2c2;fill-opacity:1">EuroWorks</text>
 </svg>

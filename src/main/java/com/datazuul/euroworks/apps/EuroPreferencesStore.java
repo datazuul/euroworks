@@ -42,7 +42,7 @@ public class EuroPreferencesStore {
 
     // Convenience getters and setters
     public static int getDesktopColorIndex() {
-        return getPrefs().getInt("desktopColorIndex", 0);
+        return getPrefs().getInt("desktopColorIndex", 1);
     }
 
     public static void setDesktopColorIndex(int index) {
