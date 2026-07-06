@@ -133,6 +133,25 @@ public class EuroSync extends EuroAppFrame {
 
         // Bind control listeners to save updates to active session automatically
         bindControlListeners();
+
+        // Set up blocking glass pane
+        JPanel glass = new JPanel();
+        glass.setOpaque(false);
+        glass.addMouseListener(new java.awt.event.MouseAdapter() {});
+        setGlassPane(glass);
+    }
+
+    private void blockWindow() {
+        getGlassPane().setVisible(true);
+        setEnabled(false);
+    }
+
+    private void unblockWindow() {
+        getGlassPane().setVisible(false);
+        setEnabled(true);
+        try {
+            setSelected(true);
+        } catch (Exception ex) {}
     }
 
     private JPanel buildTopPanel() {
@@ -394,16 +413,24 @@ public class EuroSync extends EuroAppFrame {
 
     private void addPathPair() {
         Frame parent = (Frame) SwingUtilities.getWindowAncestor(this);
-        AddPathPairDialog dialog = new AddPathPairDialog(parent);
-        dialog.setVisible(true);
-        if (dialog.isApproved()) {
-            SyncPathPair pair = new SyncPathPair(dialog.getSource(), dialog.getTarget());
+        blockWindow();
+
+        AddPathPairDialog dialog = new AddPathPairDialog(parent, pair -> {
             activeSession.getPathPairs().add(pair);
             tableModelPathPairs.addRow(new Object[] { pair.getSourceDir(), pair.getTargetDir() });
-
+            
             // Save settings
             SyncSessionStore.saveSessions(sessionsList);
-        }
+        });
+
+        dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosed(java.awt.event.WindowEvent e) {
+                unblockWindow();
+            }
+        });
+
+        dialog.setVisible(true);
     }
 
     private void deleteSelectedPathPair() {
@@ -602,17 +629,26 @@ public class EuroSync extends EuroAppFrame {
             return;
         }
 
+        blockWindow();
+
         // Show Progress Log Dialog
         SyncProgressDialog dialog = new SyncProgressDialog(
                 (Frame) SwingUtilities.getWindowAncestor(this),
                 activeSession,
                 dryRun);
+
+        dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosed(java.awt.event.WindowEvent e) {
+                unblockWindow();
+            }
+        });
+
         dialog.setLocationRelativeTo(this);
         dialog.startSync();
         dialog.setVisible(true);
     }
 
-    // ── Sync Path Selection Dialog ──────────────────────────────────────────
     private static class AddPathPairDialog extends JDialog {
         private final JTextField txtDialogSource;
         private final JTextField txtDialogTarget;
@@ -620,10 +656,11 @@ public class EuroSync extends EuroAppFrame {
         private final JButton btnDialogBrowseTarget;
         private final JButton btnDialogOk;
         private final JButton btnDialogCancel;
-        private boolean approved = false;
+        private final java.util.function.Consumer<SyncPathPair> onApprove;
 
-        public AddPathPairDialog(Frame owner) {
-            super(owner, "Verzeichnispaar hinzufügen", true);
+        public AddPathPairDialog(Frame owner, java.util.function.Consumer<SyncPathPair> onApprove) {
+            super(owner, "Verzeichnispaar hinzufügen", false); // modeless!
+            this.onApprove = onApprove;
             setSize(500, 180);
             setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
             setLayout(new GridBagLayout());
@@ -679,7 +716,7 @@ public class EuroSync extends EuroAppFrame {
                             JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                approved = true;
+                onApprove.accept(new SyncPathPair(getSource(), getTarget()));
                 dispose();
             });
             btnDialogCancel = new JButton("Abbrechen");
@@ -732,10 +769,6 @@ public class EuroSync extends EuroAppFrame {
             }
         }
 
-        public boolean isApproved() {
-            return approved;
-        }
-
         public String getSource() {
             return txtDialogSource.getText().trim();
         }
@@ -758,7 +791,7 @@ public class EuroSync extends EuroAppFrame {
         private JButton btnClose;
 
         public SyncProgressDialog(Frame owner, SyncSession session, boolean dryRun) {
-            super(owner, "EuroSync: " + session.getName(), true);
+            super(owner, "EuroSync: " + session.getName(), false); // modeless!
             this.session = session;
             this.dryRun = dryRun;
 
