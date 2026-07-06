@@ -42,6 +42,8 @@ public class EuroIconThemeManager {
         CANDIDATES.put("bezier", new String[] { "bezier", "apps/accessories-calculator" });
         CANDIDATES.put("starfield", new String[] { "starfield", "apps/preferences-desktop-screensaver" });
         CANDIDATES.put("exit", new String[] { "exit", "actions/system-shutdown", "actions/exit" });
+        CANDIDATES.put("sync", new String[] { "sync", "apps/system-software-update", "actions/sync" });
+        CANDIDATES.put("eurosync", new String[] { "sync", "apps/system-software-update", "actions/sync" });
         CANDIDATES.put("start", new String[] { "start", "apps/application-default-icon" });
     }
 
@@ -131,6 +133,9 @@ public class EuroIconThemeManager {
         if ("folder".equalsIgnoreCase(name)) {
             return new FolderFallbackIcon();
         }
+        if ("sync".equalsIgnoreCase(name) || "eurosync".equalsIgnoreCase(name)) {
+            return new SyncFallbackIcon();
+        }
         return new GenericAppFallbackIcon();
     }
 
@@ -178,6 +183,31 @@ public class EuroIconThemeManager {
             g2.fillRect(ix + 1, iy + 1, 10, 10);
             g2.setColor(new Color(0, 90, 110)); // Steel blue title bar of mini window
             g2.fillRect(ix + 2, iy + 2, 8, 3);
+            g2.dispose();
+        }
+
+        @Override public int getIconWidth() { return 16; }
+        @Override public int getIconHeight() { return 16; }
+    }
+
+    private static class SyncFallbackIcon implements Icon {
+        @Override
+        public void paintIcon(Component c, Graphics g, int x, int y) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+            int ix = x + (getIconWidth() - 12) / 2;
+            int iy = y + (getIconHeight() - 12) / 2;
+
+            g2.setColor(new Color(0, 100, 100)); // Retro Teal
+            g2.drawArc(ix, iy, 11, 11, 45, 270);
+            
+            // Arrow heads
+            g2.drawLine(ix + 8, iy + 2, ix + 10, iy);
+            g2.drawLine(ix + 8, iy + 2, ix + 8, iy + 5);
+            
+            g2.drawLine(ix + 2, iy + 8, ix, iy + 10);
+            g2.drawLine(ix + 2, iy + 8, ix + 2, iy + 5);
+            
             g2.dispose();
         }
 

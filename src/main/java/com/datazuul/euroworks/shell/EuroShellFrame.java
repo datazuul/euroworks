@@ -17,6 +17,7 @@ import com.datazuul.euroworks.screensavers.EuroStarfield;
 import com.datazuul.euroworks.games.EuroMines;
 import com.datazuul.euroworks.games.EuroBreakout;
 import com.datazuul.euroworks.games.EuroInvaders;
+import com.datazuul.euroworks.apps.eurosync.EuroSync;
 
 import javax.swing.*;
 import java.awt.*;
@@ -35,6 +36,10 @@ public class EuroShellFrame extends JFrame {
     private boolean screensaverRunning = false;
     private JFrame activeScreensaverFrame = null;
     private Point initialMousePos = null;
+
+    private JCheckBoxMenuItem fullscreenMenuItem = null;
+    private Rectangle normalBounds = null;
+    private boolean isFullscreen = false;
 
     public EuroShellFrame() {
         super("EuroWorks Desktop Shell");
@@ -72,7 +77,7 @@ public class EuroShellFrame extends JFrame {
 
         String[] apps = { "EuroManager", "EuroWrite", "EuroDraw", "EuroCalc", "EuroFile", "EuroDex", "EuroMandelbrot",
                 "EuroPipes", "EuroMaze", "EuroBezier", "EuroStarfield", "EuroMines", "EuroBreakout", "EuroInvaders",
-                "EuroCDPlayer", "EuroScan", "EuroRadio", "EuroWeb", "EuroPreferences" };
+                "EuroCDPlayer", "EuroScan", "EuroRadio", "EuroWeb", "EuroSync", "EuroPreferences" };
         for (String appName : apps) {
             JMenuItem appItem = new JMenuItem(appName);
             appItem.addActionListener(e -> launchApp(appName));
@@ -106,6 +111,12 @@ public class EuroShellFrame extends JFrame {
         JMenuItem arrangeItem = new JMenuItem("Arrange Icons");
         arrangeItem.addActionListener(e -> arrangeIcons());
         windowMenu.add(arrangeItem);
+
+        windowMenu.addSeparator();
+        fullscreenMenuItem = new JCheckBoxMenuItem("Fullscreen");
+        fullscreenMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F11, 0));
+        fullscreenMenuItem.addActionListener(e -> setFullscreen(fullscreenMenuItem.isSelected()));
+        windowMenu.add(fullscreenMenuItem);
 
         // 4. Help Menu
         JMenu helpMenu = new JMenu("Help");
@@ -157,6 +168,8 @@ public class EuroShellFrame extends JFrame {
             frame = new EuroRadio();
         } else if ("EuroWeb".equals(appName)) {
             frame = new EuroWeb();
+        } else if ("EuroSync".equals(appName)) {
+            frame = new EuroSync();
         } else {
             frame = new EuroMockAppFrame(appName);
         }
@@ -374,5 +387,49 @@ public class EuroShellFrame extends JFrame {
         }
 
         lastActivityTime = System.currentTimeMillis();
+    }
+
+    public void setFullscreen(boolean enable) {
+        if (this.isFullscreen == enable) {
+            return;
+        }
+
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice gd = ge.getDefaultScreenDevice();
+        if (!gd.isFullScreenSupported()) {
+            JOptionPane.showMessageDialog(this,
+                    "Fullscreen mode is not supported on this screen device.",
+                    "Not Supported",
+                    JOptionPane.WARNING_MESSAGE);
+            if (fullscreenMenuItem != null) {
+                fullscreenMenuItem.setSelected(false);
+            }
+            return;
+        }
+
+        this.isFullscreen = enable;
+
+        if (fullscreenMenuItem != null && fullscreenMenuItem.isSelected() != enable) {
+            fullscreenMenuItem.setSelected(enable);
+        }
+
+        if (enable) {
+            normalBounds = getBounds();
+            dispose();
+            setUndecorated(true);
+            gd.setFullScreenWindow(this);
+            setVisible(true);
+        } else {
+            dispose();
+            setUndecorated(false);
+            gd.setFullScreenWindow(null);
+            if (normalBounds != null) {
+                setBounds(normalBounds);
+            } else {
+                setSize(1024, 768);
+                setLocationRelativeTo(null);
+            }
+            setVisible(true);
+        }
     }
 }
