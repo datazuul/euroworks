@@ -47,8 +47,8 @@ class EuroSyncEngineTest {
             }
 
             @Override
-            public void onProgress(int current, int max, String currentFile) {
-                System.out.println("TEST PROGRESS: " + current + "/" + max + " -> " + currentFile);
+            public void onProgress(int current, int max, String currentFile, long fileBytesTransferred, long fileTotalBytes) {
+                System.out.println("TEST PROGRESS: " + current + "/" + max + " -> " + currentFile + " (" + fileBytesTransferred + "/" + fileTotalBytes + ")");
             }
 
             @Override
@@ -87,7 +87,7 @@ class EuroSyncEngineTest {
         // Sync again with delete on destination
         TestEuroSyncEngine engine2 = new TestEuroSyncEngine(session, false, new EuroSyncEngine.EngineCallback() {
             @Override public void onLog(String message) {}
-            @Override public void onProgress(int current, int max, String currentFile) {}
+            @Override public void onProgress(int current, int max, String currentFile, long fileBytesTransferred, long fileTotalBytes) {}
             @Override
             public void onFinished(boolean success, boolean canceled, String summary) {
                 assertTrue(summary.contains("Dateien gelöscht: 1"));
@@ -119,7 +119,7 @@ class EuroSyncEngineTest {
 
         TestEuroSyncEngine engine = new TestEuroSyncEngine(session, true, new EuroSyncEngine.EngineCallback() {
             @Override public void onLog(String message) {}
-            @Override public void onProgress(int current, int max, String currentFile) {}
+            @Override public void onProgress(int current, int max, String currentFile, long fileBytesTransferred, long fileTotalBytes) {}
             @Override
             public void onFinished(boolean success, boolean canceled, String summary) {
                 assertTrue(summary.contains("Dateien kopiert: 1"));

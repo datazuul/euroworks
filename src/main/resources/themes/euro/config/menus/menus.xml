@@ -19,6 +19,7 @@
       <Directory>Office.directory</Directory>
       <Include>
         <Filename>EuroWrite.desktop</Filename>
+        <Filename>EuroNotepad.desktop</Filename>
         <Filename>EuroDraw.desktop</Filename>
         <Filename>EuroCalc.desktop</Filename>
         <Filename>EuroFile.desktop</Filename>

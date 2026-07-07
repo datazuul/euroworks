@@ -4,6 +4,7 @@
   <Group name="Work" title="Arbeit" icon="work">
     <App name="EuroManager" exec="EuroManager" icon="file" />
     <App name="EuroWrite" exec="EuroWrite" icon="document" />
+    <App name="EuroNotepad" exec="EuroNotepad" icon="document" />
     <App name="EuroDraw" exec="EuroDraw" icon="paint" />
     <App name="EuroCalc" exec="EuroCalc" icon="calc" />
   </Group>

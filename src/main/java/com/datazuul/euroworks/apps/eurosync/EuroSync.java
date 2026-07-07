@@ -855,13 +855,25 @@ public class EuroSync extends EuroAppFrame {
                 }
 
                 @Override
-                public void onProgress(int current, int max, String currentFile) {
+                public void onProgress(int current, int max, String currentFile, long fileBytesTransferred, long fileTotalBytes) {
                     SwingUtilities.invokeLater(() -> {
-                        lblStatus.setText("Synchronisiere: " + currentFile);
-                        int pct = (int) (((double) current / max) * 100);
+                        String sizeInfo = "";
+                        if (fileTotalBytes > 0) {
+                            sizeInfo = String.format(" (%s / %s)", formatSize(fileBytesTransferred), formatSize(fileTotalBytes));
+                        }
+                        lblStatus.setText("Synchronisiere: " + currentFile + sizeInfo);
+                        int pct = max > 0 ? (int) (((double) current / max) * 100) : 0;
                         progressBar.setValue(pct);
                         progressBar.setString(String.format("%d / %d (%d%%)", current, max, pct));
                     });
+                }
+
+                private static String formatSize(long bytes) {
+                    if (bytes <= 0) return "0 B";
+                    if (bytes < 1024) return bytes + " B";
+                    if (bytes < 1024 * 1024) return String.format("%.2f KB", bytes / 1024.0);
+                    if (bytes < 1024 * 1024 * 1024) return String.format("%.2f MB", bytes / (1024.0 * 1024.0));
+                    return String.format("%.2f GB", bytes / (1024.0 * 1024.0 * 1024.0));
                 }
 
                 @Override

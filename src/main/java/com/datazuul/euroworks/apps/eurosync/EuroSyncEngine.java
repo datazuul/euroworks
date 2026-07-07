@@ -12,7 +12,7 @@ public class EuroSyncEngine extends SwingWorker<Void, String> {
 
     public interface EngineCallback {
         void onLog(String message);
-        void onProgress(int current, int max, String currentFile);
+        void onProgress(int current, int max, String currentFile, long fileBytesTransferred, long fileTotalBytes);
         void onFinished(boolean success, boolean canceled, String summary);
     }
 
@@ -135,7 +135,7 @@ public class EuroSyncEngine extends SwingWorker<Void, String> {
 
                 globalIndex++;
                 if (callback != null) {
-                    callback.onProgress(globalIndex, totalItems, relativePath);
+                    callback.onProgress(globalIndex, totalItems, relativePath, 0L, srcFile.isDirectory() ? 0L : srcFile.length());
                 }
 
                 filesProcessed++;
@@ -143,7 +143,7 @@ public class EuroSyncEngine extends SwingWorker<Void, String> {
                 if (srcFile.isDirectory()) {
                     syncDirectory(srcFile, dstFile, relativePath);
                 } else {
-                    syncFile(srcFile, dstFile, relativePath);
+                    syncFile(srcFile, dstFile, relativePath, globalIndex, totalItems);
                 }
             }
         }
@@ -244,7 +244,7 @@ public class EuroSyncEngine extends SwingWorker<Void, String> {
         }
     }
 
-    private void syncFile(File src, File dest, String relativePath) {
+    private void syncFile(File src, File dest, String relativePath, int globalIndex, int totalItems) {
         boolean shouldCopy = false;
         String reason = "";
 
@@ -286,7 +286,7 @@ public class EuroSyncEngine extends SwingWorker<Void, String> {
             publish(String.format("[COPY] %s (%s)", relativePath, reason));
             if (!dryRun) {
                 try {
-                    copyFileContent(src, dest);
+                    copyFileContent(src, dest, globalIndex, totalItems, relativePath);
                     filesCopied++;
                     bytesTransferred += src.length();
 
@@ -310,17 +310,32 @@ public class EuroSyncEngine extends SwingWorker<Void, String> {
         }
     }
 
-    private void copyFileContent(File src, File dest) throws Exception {
+    private void copyFileContent(File src, File dest, int globalIndex, int totalItems, String relativePath) throws Exception {
         dest.getParentFile().mkdirs();
+        long totalSize = src.length();
+        long bytesWritten = 0;
         try (InputStream in = new FileInputStream(src);
              OutputStream out = new FileOutputStream(dest)) {
-            byte[] buffer = new byte[8192];
+            byte[] buffer = new byte[65536]; // 64KB buffer for efficiency
             int bytesRead;
+            long lastUpdate = 0;
             while ((bytesRead = in.read(buffer)) != -1) {
                 if (isCanceled) {
                     throw new InterruptedException("Kopiervorgang abgebrochen");
                 }
                 out.write(buffer, 0, bytesRead);
+                bytesWritten += bytesRead;
+
+                long now = System.currentTimeMillis();
+                if (now - lastUpdate > 100) {
+                    if (callback != null) {
+                        callback.onProgress(globalIndex, totalItems, relativePath, bytesWritten, totalSize);
+                    }
+                    lastUpdate = now;
+                }
+            }
+            if (callback != null) {
+                callback.onProgress(globalIndex, totalItems, relativePath, bytesWritten, totalSize);
             }
         }
     }
