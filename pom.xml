@@ -64,6 +64,13 @@
 			<version>0.3.7-1</version>
 		</dependency>
 
+		<!-- AAC/AAC+ Decoding Support (Java Sound SPI Provider) -->
+		<dependency>
+			<groupId>com.tianscar.javasound</groupId>
+			<artifactId>javasound-aac</artifactId>
+			<version>0.9.8</version>
+		</dependency>
+
 		<!-- JSON Config Storage -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>

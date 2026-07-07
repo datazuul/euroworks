@@ -19,7 +19,7 @@ import javax.sound.sampled.SourceDataLine;
 /**
  * Playback thread that downloads raw stream data, cushions it via
  * BufferedRadioInputStream,
- * decodes MP3 using SPI, and plays back raw PCM.
+ * decodes MP3/AAC using SPI, and plays back raw PCM.
  */
 public class RadioPlaybackThread extends Thread {
     public enum PlaybackState {
@@ -187,7 +187,7 @@ public class RadioPlaybackThread extends Thread {
         });
 
         // 2. Main Playback loop (Decoding and Playing)
-        AudioInputStream mp3Stream = null;
+        AudioInputStream encodedStream = null;
         AudioInputStream decodedStream = null;
 
         try {
@@ -197,8 +197,8 @@ public class RadioPlaybackThread extends Thread {
             // Wrap in BufferedInputStream to support mark() and reset() which is required
             // by AudioSystem SPI readers.
             InputStream markedStream = new BufferedInputStream(bufferedStream);
-            mp3Stream = AudioSystem.getAudioInputStream(markedStream);
-            AudioFormat baseFormat = mp3Stream.getFormat();
+            encodedStream = AudioSystem.getAudioInputStream(markedStream);
+            AudioFormat baseFormat = encodedStream.getFormat();
 
             // Extract metadata (bitrate, sample rate) from format properties
             Map<String, Object> properties = baseFormat.properties();
@@ -221,7 +221,7 @@ public class RadioPlaybackThread extends Thread {
                     false // little-endian
             );
 
-            decodedStream = AudioSystem.getAudioInputStream(targetFormat, mp3Stream);
+            decodedStream = AudioSystem.getAudioInputStream(targetFormat, encodedStream);
 
             // Get audio line
             DataLine.Info info = new DataLine.Info(SourceDataLine.class, targetFormat);
@@ -276,9 +276,9 @@ public class RadioPlaybackThread extends Thread {
                 } catch (Exception ignored) {
                 }
             }
-            if (mp3Stream != null) {
+            if (encodedStream != null) {
                 try {
-                    mp3Stream.close();
+                    encodedStream.close();
                 } catch (Exception ignored) {
                 }
             }

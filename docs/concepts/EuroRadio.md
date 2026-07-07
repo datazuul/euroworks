@@ -4,7 +4,7 @@ This document describes the design and implementation of the `EuroRadio` interne
 
 ## Architectural Overview
 
-EuroRadio is a lightweight internet radio stream player. It fetches worldwide station lists from the public, community-maintained Radio-Browser API, plays MP3 audio streams, and stores local user channel configurations.
+EuroRadio is a lightweight internet radio stream player. It fetches worldwide station lists from the public, community-maintained Radio-Browser API, plays MP3 and AAC/AAC+ audio streams, and stores local user channel configurations.
 
 ### Key Components
 
@@ -12,6 +12,7 @@ EuroRadio is a lightweight internet radio stream player. It fetches worldwide st
    - Standard Java Sound API (`javax.sound.sampled`) combined with:
      - `jlayer`: A pure-Java MP3 decoder.
      - `mp3spi` & `tritonus-share`: Service Provider Interface (SPI) implementations that register MP3 audio stream format conversion with the standard Java `AudioSystem`.
+     - `javasound-aac`: Service Provider Interface (SPI) implementation that registers AAC/HE-AAC (AAC+) audio stream format conversion with the standard Java `AudioSystem`.
 
 2. **Autopanning / Buffering System**:
    - A dedicated `DownloaderThread` pulls stream chunks from network sockets.
@@ -48,7 +49,7 @@ EuroRadio is a lightweight internet radio stream player. It fetches worldwide st
  [Custom InputStream]
         │
         ▼
- [AudioSystem.getAudioInputStream]  <-- MP3 Decoder (MP3SPI / JLayer)
+ [AudioSystem.getAudioInputStream]  <-- MP3/AAC Decoders (MP3SPI / Javasound-AAC)
         │
         ▼ (PCM Raw Bytes)
  [SourceDataLine Write]             <-- Speaker Playback

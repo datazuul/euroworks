@@ -433,10 +433,13 @@ public class EuroRadio extends EuroAppFrame {
             SwingUtilities.invokeLater(() -> {
                 searchResults.addAll(stations);
                 for (RadioStation rs : stations) {
-                    // Check if MP3 (our supported format)
+                    // Check if MP3 or AAC (our supported formats)
                     String codecDisplay = rs.getCodec();
-                    if (codecDisplay != null && !codecDisplay.toLowerCase().contains("mp3")) {
-                        codecDisplay = codecDisplay + " (⚠️ unsupportiert)";
+                    if (codecDisplay != null) {
+                        String codecLower = codecDisplay.toLowerCase();
+                        if (!codecLower.contains("mp3") && !codecLower.contains("aac")) {
+                            codecDisplay = codecDisplay + " (⚠️ unsupportiert)";
+                        }
                     }
                     modelSearch.addRow(new Object[] {
                             rs.getName(),
@@ -467,7 +470,8 @@ public class EuroRadio extends EuroAppFrame {
         modelSearch.setRowCount(0);
         for (RadioStation rs : searchResults) {
             String codecDisplay = rs.getCodec() != null ? rs.getCodec() : "MP3";
-            if (!codecDisplay.toUpperCase().contains("MP3")) {
+            String codecLower = codecDisplay.toLowerCase();
+            if (!codecLower.contains("mp3") && !codecLower.contains("aac")) {
                 codecDisplay = codecDisplay + " (⚠️ unsupportiert)";
             }
             modelSearch.addRow(new Object[] {

@@ -26,6 +26,12 @@ public class EuroworksApplication implements CommandLineRunner {
     public static void main(String[] args) {
         // Disable headless mode for AWT/Swing GUI
         System.setProperty("java.awt.headless", "false");
+
+        // Workaround for JavaFX WebView native crashes on Windows (e.g. twkPostPaint access violation)
+        if (System.getProperty("prism.order") == null) {
+            System.setProperty("prism.order", "sw");
+        }
+
         SpringApplication.run(EuroworksApplication.class, args);
     }
 

@@ -856,10 +856,12 @@ public class EuroSync extends EuroAppFrame {
 
                 @Override
                 public void onProgress(int current, int max, String currentFile) {
-                    lblStatus.setText("Synchronisiere: " + currentFile);
-                    int pct = (int) (((double) current / max) * 100);
-                    progressBar.setValue(pct);
-                    progressBar.setString(String.format("%d / %d (%d%%)", current, max, pct));
+                    SwingUtilities.invokeLater(() -> {
+                        lblStatus.setText("Synchronisiere: " + currentFile);
+                        int pct = (int) (((double) current / max) * 100);
+                        progressBar.setValue(pct);
+                        progressBar.setString(String.format("%d / %d (%d%%)", current, max, pct));
+                    });
                 }
 
                 @Override
