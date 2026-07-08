@@ -15,6 +15,7 @@ $apps = @(
     @{ Name="EuroCalc"; Exec="EuroCalc"; Icon="calc" },
     @{ Name="EuroFile"; Exec="EuroFile"; Icon="file" },
     @{ Name="EuroManager"; Exec="EuroManager"; Icon="folder" },
+    @{ Name="EuroCommander"; Exec="EuroCommander"; Icon="folder" },
     @{ Name="EuroDex"; Exec="EuroDex"; Icon="dex" },
     @{ Name="EuroMandelbrot"; Exec="EuroMandelbrot"; Icon="mandelbrot" },
     @{ Name="CD Player"; Exec="EuroCDPlayer"; Icon="cdplayer" },

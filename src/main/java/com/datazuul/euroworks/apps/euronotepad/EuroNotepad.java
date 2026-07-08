@@ -51,6 +51,34 @@ public class EuroNotepad extends EuroAppFrame {
         updateTitle();
     }
 
+    public EuroNotepad(File targetFile) {
+        this();
+        loadFile(targetFile);
+    }
+
+    public void setReadOnly(boolean readOnly) {
+        txtArea.setEditable(!readOnly);
+    }
+
+    public void loadFile(File selectedFile) {
+        try {
+            byte[] bytes = java.nio.file.Files.readAllBytes(selectedFile.toPath());
+            String text;
+            try {
+                text = new String(bytes, java.nio.charset.StandardCharsets.UTF_8);
+            } catch (Exception e) {
+                text = new String(bytes); // default charset fallback
+            }
+            file = selectedFile;
+            setTextAreaText(text);
+            undoManager.discardAllEdits();
+            updateUndoRedoMenuItems();
+            updateTitle();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Could not open file: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
     private void buildGUI() {
         // Text area
         txtArea = new JTextArea();

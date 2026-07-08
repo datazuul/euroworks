@@ -11,6 +11,7 @@ import com.datazuul.euroworks.apps.EuroScan;
 import com.datazuul.euroworks.apps.euroradio.EuroRadio;
 import com.datazuul.euroworks.apps.euroweb.EuroWeb;
 import com.datazuul.euroworks.apps.eurotv.EuroTv;
+import com.datazuul.euroworks.apps.euronews.EuroNews;
 import com.datazuul.euroworks.screensavers.EuroPipes;
 import com.datazuul.euroworks.screensavers.EuroMaze;
 import com.datazuul.euroworks.screensavers.EuroBezier;
@@ -20,6 +21,7 @@ import com.datazuul.euroworks.games.EuroBreakout;
 import com.datazuul.euroworks.games.EuroInvaders;
 import com.datazuul.euroworks.apps.eurosync.EuroSync;
 import com.datazuul.euroworks.apps.euronotepad.EuroNotepad;
+import com.datazuul.euroworks.apps.eurocommander.EuroCommander;
 
 import javax.swing.*;
 import java.awt.*;
@@ -77,9 +79,9 @@ public class EuroShellFrame extends JFrame {
         expressMenu.setFont(expressMenu.getFont().deriveFont(Font.BOLD));
         expressMenu.setForeground(new Color(0, 100, 100)); // Special styling for retro branding
 
-        String[] apps = { "EuroManager", "EuroWrite", "EuroNotepad", "EuroDraw", "EuroCalc", "EuroFile", "EuroDex", "EuroMandelbrot",
+        String[] apps = { "EuroManager", "EuroCommander", "EuroWrite", "EuroNotepad", "EuroDraw", "EuroCalc", "EuroFile", "EuroDex", "EuroMandelbrot",
                 "EuroPipes", "EuroMaze", "EuroBezier", "EuroStarfield", "EuroMines", "EuroBreakout", "EuroInvaders",
-                "EuroCDPlayer", "EuroScan", "EuroRadio", "EuroWeb", "EuroTv", "EuroSync", "EuroPreferences" };
+                "EuroCDPlayer", "EuroScan", "EuroRadio", "EuroWeb", "EuroTv", "EuroNews", "EuroSync", "EuroPreferences" };
         for (String appName : apps) {
             JMenuItem appItem = new JMenuItem(appName);
             appItem.addActionListener(e -> launchApp(appName));
@@ -172,10 +174,14 @@ public class EuroShellFrame extends JFrame {
             frame = new EuroWeb();
         } else if ("EuroTv".equals(appName)) {
             frame = new EuroTv();
+        } else if ("EuroNews".equals(appName)) {
+            frame = new EuroNews();
         } else if ("EuroSync".equals(appName)) {
             frame = new EuroSync();
         } else if ("EuroNotepad".equals(appName)) {
             frame = new EuroNotepad();
+        } else if ("EuroCommander".equals(appName)) {
+            frame = new EuroCommander();
         } else {
             frame = new EuroMockAppFrame(appName);
         }

@@ -97,6 +97,8 @@ public class RadioPlaybackThread extends Thread {
 
     @Override
     public void run() {
+        // Ensure Thread Context ClassLoader is set to load SPI audio decoders correctly in all environments
+        Thread.currentThread().setContextClassLoader(RadioPlaybackThread.class.getClassLoader());
         updateState(PlaybackState.CONNECTING, null);
 
         // Resolve stream URL in case it's a playlist (.m3u/.pls)
@@ -114,8 +116,9 @@ public class RadioPlaybackThread extends Thread {
         }
 
         // 1. Start downloader thread
-        bufferedStream = new BufferedRadioInputStream(16); // 16 chunks pre-buffered
+        bufferedStream = new BufferedRadioInputStream(16);
         final String targetUrl = streamUrlStr;
+        System.out.println("EuroRadio: Playing URL: " + targetUrl);
 
         Thread downloaderThread = Thread.startVirtualThread(() -> {
             int retries = 0;
@@ -126,16 +129,33 @@ public class RadioPlaybackThread extends Thread {
                 HttpURLConnection conn = null;
                 try {
                     URL url = URI.create(targetUrl).toURL();
-                    conn = (HttpURLConnection) url.openConnection();
-                    connection = conn;
-                    conn.setRequestProperty("User-Agent", "EuroWorks-EuroRadio/1.0");
-                    conn.setConnectTimeout(8000);
-                    conn.setReadTimeout(20000); // 20 seconds read timeout
-                    conn.connect();
+                    int redirectCount = 0;
+                    while (redirectCount < 5) {
+                        conn = (HttpURLConnection) url.openConnection();
+                        connection = conn;
+                        conn.setRequestProperty("User-Agent", "EuroWorks-EuroRadio/1.0");
+                        conn.setConnectTimeout(8000);
+                        conn.setReadTimeout(20000);
+                        conn.setInstanceFollowRedirects(false); // Handle redirects manually
+                        conn.connect();
 
-                    int code = conn.getResponseCode();
-                    if (code >= 400) {
-                        throw new IOException("HTTP Error " + code);
+                        int code = conn.getResponseCode();
+                        if (code == HttpURLConnection.HTTP_MOVED_TEMP || code == HttpURLConnection.HTTP_MOVED_PERM || 
+                            code == 307 || code == 308) {
+                            String location = conn.getHeaderField("Location");
+                            if (location != null) {
+                                url = URI.create(location).toURL();
+                                System.out.println("EuroRadio: Redirecting to: " + url);
+                                redirectCount++;
+                                conn.disconnect();
+                                continue;
+                            }
+                        }
+                        
+                        if (code >= 400) {
+                            throw new IOException("HTTP Error " + code);
+                        }
+                        break;
                     }
 
                     is = new BufferedInputStream(conn.getInputStream());
@@ -208,29 +228,77 @@ public class RadioPlaybackThread extends Thread {
                     bitrate = (Integer) br / 1000; // kbps
                 }
             }
-            sampleRate = (int) baseFormat.getSampleRate();
+            float rate = baseFormat.getSampleRate();
+            if (rate == javax.sound.sampled.AudioSystem.NOT_SPECIFIED || rate <= 0) {
+                rate = 44100.0f;
+            }
+            int channels = baseFormat.getChannels();
+            if (channels == javax.sound.sampled.AudioSystem.NOT_SPECIFIED || channels <= 0) {
+                channels = 2;
+            }
+            
+            sampleRate = (int) rate;
 
             // Set up target decoding format to PCM Signed
             AudioFormat targetFormat = new AudioFormat(
                     AudioFormat.Encoding.PCM_SIGNED,
-                    baseFormat.getSampleRate(),
+                    rate,
                     16, // bit depth
-                    baseFormat.getChannels(),
-                    baseFormat.getChannels() * 2,
-                    baseFormat.getSampleRate(),
+                    channels,
+                    channels * 2,
+                    rate,
                     false // little-endian
             );
 
             decodedStream = AudioSystem.getAudioInputStream(targetFormat, encodedStream);
+            AudioFormat decodedFormat = decodedStream.getFormat();
 
             // Get audio line
-            DataLine.Info info = new DataLine.Info(SourceDataLine.class, targetFormat);
-            if (!AudioSystem.isLineSupported(info)) {
-                throw new IOException("PCM Audio output line format not supported");
+            try {
+                audioLine = AudioSystem.getSourceDataLine(decodedFormat);
+                audioLine.open(decodedFormat, 16384 * 2);
+                targetFormat = decodedFormat;
+            } catch (Exception e) {
+                System.out.println("EuroRadio: Failed to open line with native format (" + decodedFormat + "). Retrying with stereo downmix...");
+                
+                // Fallback Stage 1: Downmix channels to stereo, keeping same decoded sample rate
+                float decodedRate = decodedFormat.getSampleRate();
+                if (decodedRate <= 0) {
+                    decodedRate = 44100.0f;
+                }
+                AudioFormat fallbackFormat = new AudioFormat(
+                        AudioFormat.Encoding.PCM_SIGNED,
+                        decodedRate,
+                        16,
+                        2,
+                        4,
+                        decodedRate,
+                        false
+                );
+                try {
+                    decodedStream = AudioSystem.getAudioInputStream(fallbackFormat, decodedStream);
+                    audioLine = AudioSystem.getSourceDataLine(fallbackFormat);
+                    audioLine.open(fallbackFormat, 16384 * 2);
+                    targetFormat = fallbackFormat;
+                } catch (Exception ex2) {
+                    System.out.println("EuroRadio: Failed to open line with stereo format (" + fallbackFormat + "). Retrying with standard 44.1kHz Stereo...");
+                    
+                    // Fallback Stage 2: Standard 44.1kHz stereo
+                    AudioFormat ultimateFormat = new AudioFormat(
+                            AudioFormat.Encoding.PCM_SIGNED,
+                            44100.0f,
+                            16,
+                            2,
+                            4,
+                            44100.0f,
+                            false
+                    );
+                    decodedStream = AudioSystem.getAudioInputStream(ultimateFormat, decodedStream);
+                    audioLine = AudioSystem.getSourceDataLine(ultimateFormat);
+                    audioLine.open(ultimateFormat, 16384 * 2);
+                    targetFormat = ultimateFormat;
+                }
             }
-
-            audioLine = (SourceDataLine) AudioSystem.getLine(info);
-            audioLine.open(targetFormat, 16384 * 2);
             updateLineVolume();
             audioLine.start();
 

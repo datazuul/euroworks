@@ -22,7 +22,7 @@ public class EuroAppFrame extends JInternalFrame {
         String title = getTitle().toLowerCase();
         if (title.contains("cd player")) return "cdplayer";
         if (title.contains("preferences")) return "preferences";
-        if (title.contains("manager")) return "folder";
+        if (title.contains("manager") || title.contains("commander")) return "folder";
         if (title.contains("write")) return "document";
         if (title.contains("calc")) return "calc";
         if (title.contains("draw") || title.contains("paint")) return "paint";
@@ -30,6 +30,7 @@ public class EuroAppFrame extends JInternalFrame {
         if (title.contains("radio")) return "radio";
         if (title.contains("web")) return "web";
         if (title.contains("tv")) return "tv";
+        if (title.contains("news")) return "news";
         if (title.contains("breakout")) return "breakout";
         if (title.contains("invaders")) return "invaders";
         if (title.contains("file")) return "file";

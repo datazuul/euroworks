@@ -3,6 +3,7 @@
   <!-- Groups -->
   <Group name="Work" title="Arbeit" icon="work">
     <App name="EuroManager" exec="EuroManager" icon="file" />
+    <App name="EuroCommander" exec="EuroCommander" icon="folder" />
     <App name="EuroWrite" exec="EuroWrite" icon="document" />
     <App name="EuroNotepad" exec="EuroNotepad" icon="document" />
     <App name="EuroDraw" exec="EuroDraw" icon="paint" />
@@ -19,6 +20,7 @@
     <App name="EuroWeb" exec="EuroWeb" icon="web" />
     <App name="EuroRadio" exec="EuroRadio" icon="radio" />
     <App name="EuroTv" exec="EuroTv" icon="tv" />
+    <App name="EuroNews" exec="EuroNews" icon="news" />
   </Group>
 
   <Group name="Apps" title="Anwendungen" icon="apps">

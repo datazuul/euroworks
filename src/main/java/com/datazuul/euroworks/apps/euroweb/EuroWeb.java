@@ -44,6 +44,10 @@ public class EuroWeb extends EuroAppFrame {
     private ThrobberPanel throbber;
 
     public EuroWeb() {
+        this(null);
+    }
+
+    public EuroWeb(String initialUrl) {
         super("EuroWeb Web Browser");
         setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
         setMinimumSize(new Dimension(400, 300));
@@ -66,7 +70,11 @@ public class EuroWeb extends EuroAppFrame {
         setContentPane(mainPanel);
 
         // Initialize JavaFX Platform & components
-        initJavaFX();
+        initJavaFX(initialUrl);
+    }
+
+    public void navigateTo(String url) {
+        loadURL(url);
     }
 
     private JPanel buildNavigationPanel() {
@@ -176,7 +184,7 @@ public class EuroWeb extends EuroAppFrame {
 
     // ── JavaFX Engine Integration ───────────────────────────────────────────
 
-    private void initJavaFX() {
+    private void initJavaFX(String urlToLoad) {
         Platform.runLater(() -> {
             try {
                 Platform.setImplicitExit(false);
@@ -193,7 +201,11 @@ public class EuroWeb extends EuroAppFrame {
             jfxPanel.setScene(scene);
 
             setupJavaFXListeners();
-            loadHomePage();
+            if (urlToLoad != null) {
+                webEngine.load(urlToLoad);
+            } else {
+                loadHomePage();
+            }
         });
     }
 

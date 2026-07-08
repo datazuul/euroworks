@@ -30,6 +30,7 @@
       <Directory>Organize.directory</Directory>
       <Include>
         <Filename>EuroManager.desktop</Filename>
+        <Filename>EuroCommander.desktop</Filename>
         <Filename>EuroDex.desktop</Filename>
         <Filename>EuroMandelbrot.desktop</Filename>
         <Filename>CDPlayer.desktop</Filename>

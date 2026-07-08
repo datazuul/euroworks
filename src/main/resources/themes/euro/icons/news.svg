@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
+  <!-- Newspaper base (folded look) -->
+  <path d="M1 3.5h9v10H1z" fill="#f7fafc" stroke="#4a5568" stroke-width="1.2"/>
+  <!-- Folded back/under part -->
+  <path d="M10 5.5l4 1.5v6.5l-4-1.5z" fill="#e2e8f0" stroke="#4a5568" stroke-width="1.2"/>
+  <!-- Header / Title lines -->
+  <line x1="2.5" y1="5.5" x2="8.5" y2="5.5" stroke="#e53e3e" stroke-width="1.2"/>
+  <!-- Columns of text -->
+  <line x1="2.5" y1="8" x2="5.5" y2="8" stroke="#718096" stroke-width="0.8"/>
+  <line x1="2.5" y1="9.5" x2="5.5" y2="9.5" stroke="#718096" stroke-width="0.8"/>
+  <line x1="2.5" y1="11" x2="4.5" y2="11" stroke="#718096" stroke-width="0.8"/>
+  <!-- Image box inside -->
+  <rect x="6.5" y="8" width="2" height="2" fill="#4299e1"/>
+  <line x1="6.5" y1="11" x2="8.5" y2="11" stroke="#718096" stroke-width="0.8"/>
+  <!-- Fold lines on the folded part -->
+  <line x1="11" y1="8" x2="13" y2="8.8" stroke="#a0aec0" stroke-width="0.8"/>
+  <line x1="11" y1="9.8" x2="13" y2="10.6" stroke="#a0aec0" stroke-width="0.8"/>
+</svg>

@@ -1,78 +1,84 @@
 package com.datazuul.euroworks.apps.euroradio;
 
-import java.net.InetAddress;
 import java.net.URI;
-import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import de.sfuhrm.radiobrowser4j.RadioBrowser;
+import de.sfuhrm.radiobrowser4j.ConnectionParams;
+import de.sfuhrm.radiobrowser4j.EndpointDiscovery;
+import de.sfuhrm.radiobrowser4j.FieldName;
+import de.sfuhrm.radiobrowser4j.ListParameter;
+import de.sfuhrm.radiobrowser4j.AdvancedSearch;
+import de.sfuhrm.radiobrowser4j.Station;
+import de.sfuhrm.radiobrowser4j.Limit;
+import de.sfuhrm.radiobrowser4j.SearchMode;
 
 /**
  * Client for the free Radio-Browser API (radio-browser.info).
- * Discovers servers dynamically using DNS SRV/A-records lookup and executes
- * queries.
+ * Uses the radiobrowser4j library under the hood.
  */
 public class RadioBrowserClient {
-    private static final String DYNAMIC_DNS_HOST = "all.api.radio-browser.info";
-    private static final String DEFAULT_FALLBACK_HOST = "de1.api.radio-browser.info";
     private static final String USER_AGENT = "EuroWorks-EuroRadio/1.0";
 
+    private final RadioBrowser radioBrowser;
+    private final String resolvedBaseUrl;
     private final HttpClient httpClient;
-    private final ObjectMapper objectMapper;
-    private String resolvedBaseUrl = null;
 
     public RadioBrowserClient() {
+        String discoveredUrl = null;
+        try {
+            java.util.Optional<String> endpoint = new EndpointDiscovery(USER_AGENT).discover();
+            if (endpoint.isPresent()) {
+                discoveredUrl = endpoint.get();
+            }
+        } catch (Exception ex) {
+            System.err.println("EuroRadio: Endpoint discovery failed: " + ex.getMessage());
+        }
+
+        if (discoveredUrl == null) {
+            discoveredUrl = "https://de1.api.radio-browser.info";
+            System.out.println("EuroRadio: Using fallback static API server: " + discoveredUrl);
+        } else {
+            System.out.println("EuroRadio: Dynamically resolved API server to " + discoveredUrl);
+        }
+
+        this.resolvedBaseUrl = discoveredUrl;
         this.httpClient = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(5))
                 .build();
-        this.objectMapper = new ObjectMapper();
+
+        this.radioBrowser = new RadioBrowser(
+                ConnectionParams.builder()
+                        .apiUrl(resolvedBaseUrl)
+                        .userAgent(USER_AGENT)
+                        .timeout(5000)
+                        .build()
+        );
     }
 
-    /**
-     * Resolves an available radio-browser.info API server dynamically using DNS
-     * lookup.
-     * Caches the resolved URL. Falls back to a reliable static host on failure.
-     */
-    private synchronized String getBaseUrl() {
-        if (resolvedBaseUrl != null) {
-            return resolvedBaseUrl;
+    private RadioStation mapToRadioStation(Station station) {
+        String uuidStr = "";
+        if (station.getStationUUID() != null) {
+            uuidStr = station.getStationUUID().toString();
         }
-
-        try {
-            InetAddress[] addresses = InetAddress.getAllByName(DYNAMIC_DNS_HOST);
-            if (addresses != null && addresses.length > 0) {
-                // Randomize server selection to balance load
-                List<InetAddress> list = new ArrayList<>(List.of(addresses));
-                Collections.shuffle(list);
-                for (InetAddress addr : list) {
-                    try {
-                        String canonical = addr.getCanonicalHostName();
-                        // If it successfully returns a radio-browser domain, use it
-                        if (canonical.contains("radio-browser.info")) {
-                            resolvedBaseUrl = "https://" + canonical;
-                            System.out.println("EuroRadio: Dynamically resolved API server to " + resolvedBaseUrl);
-                            return resolvedBaseUrl;
-                        }
-                    } catch (Exception ignored) {
-                    }
-                }
-            }
-        } catch (Exception ex) {
-            System.err.println("EuroRadio: DNS resolution of dynamic API hosts failed: " + ex.getMessage());
+        int bitrateVal = 0;
+        if (station.getBitrate() != null) {
+            bitrateVal = station.getBitrate();
         }
-
-        resolvedBaseUrl = "https://" + DEFAULT_FALLBACK_HOST;
-        System.out.println("EuroRadio: Using fallback static API server: " + resolvedBaseUrl);
-        return resolvedBaseUrl;
+        return new RadioStation(
+                station.getName(),
+                station.getUrl(),
+                station.getCodec(),
+                bitrateVal,
+                uuidStr
+        );
     }
 
     /**
@@ -80,30 +86,24 @@ public class RadioBrowserClient {
      */
     public List<RadioStation> searchStations(String query, String tag, String country, int limit) {
         try {
-            StringBuilder sb = new StringBuilder(getBaseUrl() + "/json/stations/search?limit=" + limit
-                    + "&hidebroken=true&order=clickcount&reverse=true");
+            AdvancedSearch.AdvancedSearchBuilder builder = AdvancedSearch.builder()
+                    .order(FieldName.CLICKCOUNT)
+                    .reverse(true);
+
             if (query != null && !query.strip().isEmpty()) {
-                sb.append("&name=").append(URLEncoder.encode(query.trim(), StandardCharsets.UTF_8));
+                builder = builder.name(query.trim());
             }
             if (tag != null && !tag.strip().isEmpty()) {
-                sb.append("&tag=").append(URLEncoder.encode(tag.trim(), StandardCharsets.UTF_8));
+                builder = builder.tag(tag.trim());
             }
             if (country != null && !country.strip().isEmpty()) {
-                sb.append("&country=").append(URLEncoder.encode(country.trim(), StandardCharsets.UTF_8));
+                builder = builder.countryCode(country.trim().toUpperCase());
             }
 
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(sb.toString()))
-                    .header("User-Agent", USER_AGENT)
-                    .timeout(Duration.ofSeconds(6))
-                    .GET()
-                    .build();
-
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() == 200) {
-                return objectMapper.readValue(response.body(), new TypeReference<List<RadioStation>>() {
-                });
-            }
+            return radioBrowser.listStationsWithAdvancedSearch(builder.build())
+                    .limit(limit)
+                    .map(this::mapToRadioStation)
+                    .collect(Collectors.toList());
         } catch (Exception ex) {
             System.err.println("EuroRadio: API search failed: " + ex.getMessage());
         }
@@ -115,21 +115,43 @@ public class RadioBrowserClient {
      */
     public List<RadioStation> getPopularStations(int limit) {
         try {
-            String url = getBaseUrl() + "/json/stations/topclick/" + limit + "?hidebroken=true";
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(url))
-                    .header("User-Agent", USER_AGENT)
-                    .timeout(Duration.ofSeconds(6))
-                    .GET()
-                    .build();
-
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() == 200) {
-                return objectMapper.readValue(response.body(), new TypeReference<List<RadioStation>>() {
-                });
-            }
+            return radioBrowser.listTopClickStations(Limit.of(limit))
+                    .stream()
+                    .map(this::mapToRadioStation)
+                    .collect(Collectors.toList());
         } catch (Exception ex) {
             System.err.println("EuroRadio: API popular list fetch failed: " + ex.getMessage());
+        }
+        return Collections.emptyList();
+    }
+
+    /**
+     * Gets list of available country codes with their names and station counts.
+     * Returns a map of ISO country code -> station count.
+     */
+    public Map<String, Integer> getCountryCodes() {
+        try {
+            return radioBrowser.listCountryCodes();
+        } catch (Exception ex) {
+            System.err.println("EuroRadio: Failed to list country codes: " + ex.getMessage());
+        }
+        return Collections.emptyMap();
+    }
+
+    /**
+     * Gets top clicked popular stations for a specific country code.
+     */
+    public List<RadioStation> getStationsByCountryCode(String countryCode, int limit) {
+        try {
+            return radioBrowser.listStationsBy(
+                    SearchMode.BYCOUNTRYCODEEXACT,
+                    countryCode,
+                    ListParameter.create().order(FieldName.CLICKCOUNT).reverseOrder(true))
+                    .limit(limit)
+                    .map(this::mapToRadioStation)
+                    .collect(Collectors.toList());
+        } catch (Exception ex) {
+            System.err.println("EuroRadio: Stations fetch for country " + countryCode + " failed: " + ex.getMessage());
         }
         return Collections.emptyList();
     }
@@ -144,7 +166,7 @@ public class RadioBrowserClient {
         // Run in background to not block UI
         Thread.startVirtualThread(() -> {
             try {
-                String url = getBaseUrl() + "/json/url/" + stationuuid;
+                String url = resolvedBaseUrl + "/json/url/" + stationuuid;
                 HttpRequest request = HttpRequest.newBuilder()
                         .uri(URI.create(url))
                         .header("User-Agent", USER_AGENT)

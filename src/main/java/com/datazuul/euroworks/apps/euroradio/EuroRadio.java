@@ -27,11 +27,27 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.JTree;
+import javax.swing.JPopupMenu;
+import javax.swing.JMenuItem;
+import javax.swing.Icon;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.TreePath;
+import javax.swing.event.TreeExpansionListener;
+import javax.swing.event.TreeExpansionEvent;
+import java.awt.Component;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import com.datazuul.euroworks.apps.EuroAppFrame;
+import com.datazuul.euroworks.shell.EuroIconThemeManager;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Map;
 
 /**
  * EuroRadio – An internet radio streaming application for EuroWorks.
@@ -45,10 +61,7 @@ public class EuroRadio extends EuroAppFrame {
     private static final String CONFIG_DIR = System.getProperty("user.home") + "/.euroworks/euroradio";
     private static final String CONFIG_FILE = CONFIG_DIR + "/channels.json";
 
-    // Colors & Fonts
-    private static final Color LCD_BG = Color.BLACK;
-    private static final Color LCD_FG = new Color(0, 220, 240); // Bright cyan digital look
-    private static final Color LCD_MUTED = new Color(0, 90, 100);
+    // Colors & Fonts (using standard UIManager theme colors)
 
     // Audio State
     private RadioPlaybackThread playbackThread = null;
@@ -78,6 +91,13 @@ public class EuroRadio extends EuroAppFrame {
     private List<RadioStation> searchResults = new ArrayList<>();
     private JButton btnPlaySearch;
     private JButton btnAddSearch;
+
+    // Länder (Countries) Tab
+    private JTree treeCountries;
+    private DefaultTreeModel modelCountries;
+    private DefaultMutableTreeNode rootCountries;
+    private JButton btnPlayCountry;
+    private JButton btnAddCountry;
 
     public EuroRadio() {
         super("EuroRadio");
@@ -112,26 +132,30 @@ public class EuroRadio extends EuroAppFrame {
                 BorderFactory.createMatteBorder(0, 0, 2, 0, new Color(128, 128, 128)),
                 BorderFactory.createEmptyBorder(0, 0, 8, 0)));
 
-        // A. Retro LCD Panel
+        // A. Retro LCD Panel (styled with theme colors)
         JPanel lcd = new JPanel();
         lcd.setLayout(new BoxLayout(lcd, BoxLayout.Y_AXIS));
-        lcd.setBackground(LCD_BG);
+        lcd.setBackground(UIManager.getColor("TextField.background"));
+        Color borderColor = UIManager.getColor("Component.borderColor");
+        if (borderColor == null) {
+            borderColor = new Color(160, 160, 160);
+        }
         lcd.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(160, 160, 160)),
+                BorderFactory.createLineBorder(borderColor),
                 BorderFactory.createEmptyBorder(6, 12, 6, 12)));
         lcd.setPreferredSize(new Dimension(380, 80));
 
         lblLCDTitle = new JLabel("EuroRadio - Bereit");
         lblLCDTitle.setFont(new Font("Courier New", Font.BOLD, 14));
-        lblLCDTitle.setForeground(LCD_FG);
+        lblLCDTitle.setForeground(UIManager.getColor("TextField.foreground"));
 
         lblLCDStatus = new JLabel("Gestoppt");
         lblLCDStatus.setFont(new Font("Courier New", Font.PLAIN, 12));
-        lblLCDStatus.setForeground(LCD_FG);
+        lblLCDStatus.setForeground(UIManager.getColor("TextField.foreground"));
 
         lblLCDStats = new JLabel("Buffer: 0% | Bitrate: --- kbps | --- kHz");
         lblLCDStats.setFont(new Font("Courier New", Font.PLAIN, 10));
-        lblLCDStats.setForeground(LCD_MUTED);
+        lblLCDStats.setForeground(UIManager.getColor("TextField.inactiveForeground"));
 
         lcd.add(lblLCDTitle);
         lcd.add(Box.createVerticalStrut(4));
@@ -185,6 +209,9 @@ public class EuroRadio extends EuroAppFrame {
 
         // Tab 2: Browser
         tabs.addTab("🔍 Radio Stationen suchen", buildSearchTab());
+
+        // Tab 3: Länder
+        tabs.addTab("🌍 Länder", buildCountriesTab());
 
         return tabs;
     }
@@ -527,7 +554,19 @@ public class EuroRadio extends EuroAppFrame {
                     }
                     case ERROR -> {
                         lblLCDStatus.setText("Fehler!");
-                        lblLCDStats.setText(errorMsg != null ? errorMsg : "Unbekannter Stream-Fehler");
+                        String friendlyMsg = errorMsg;
+                        if (friendlyMsg != null) {
+                            if (friendlyMsg.contains("unexpected profile") || friendlyMsg.contains("unsupported profile") || 
+                                friendlyMsg.contains("too many bands") || friendlyMsg.contains("invalid huffman") ||
+                                friendlyMsg.contains("Unsupported conversion")) {
+                                friendlyMsg = "Format unsupportiert (Stream-Fehler)";
+                            } else if (friendlyMsg.contains("Connection failed") || friendlyMsg.contains("HTTP Error") || friendlyMsg.contains("timeout")) {
+                                friendlyMsg = "Verbindungsfehler (Stream offline?)";
+                            }
+                        } else {
+                            friendlyMsg = "Unbekannter Stream-Fehler";
+                        }
+                        lblLCDStats.setText(friendlyMsg);
                     }
                 }
             });
@@ -599,6 +638,218 @@ public class EuroRadio extends EuroAppFrame {
                 stopActivePlayback();
             }
             saveFavorites();
+        }
+    }
+
+    // ── Countries Tab & Lazy Loading ──────────────────────────────────────────
+
+    private JPanel buildCountriesTab() {
+        JPanel panel = new JPanel(new BorderLayout(0, 8));
+        panel.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
+
+        rootCountries = new DefaultMutableTreeNode("Länder");
+        modelCountries = new DefaultTreeModel(rootCountries);
+        treeCountries = new JTree(modelCountries);
+        treeCountries.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        treeCountries.setRootVisible(false);
+        treeCountries.setShowsRootHandles(true);
+        treeCountries.setCellRenderer(new CountryTreeCellRenderer());
+
+        JScrollPane scroll = new JScrollPane(treeCountries);
+        panel.add(scroll, BorderLayout.CENTER);
+
+        JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 6, 0));
+
+        btnPlayCountry = buildRetroButton("▶ Ausgewählte Station abspielen");
+        btnPlayCountry.setEnabled(false);
+        btnPlayCountry.addActionListener(e -> playSelectedTreeStation());
+
+        btnAddCountry = buildRetroButton("⭐ Zu Favoriten hinzufügen");
+        btnAddCountry.setEnabled(false);
+        btnAddCountry.addActionListener(e -> addSelectedTreeStationToFavorites());
+
+        actionPanel.add(btnPlayCountry);
+        actionPanel.add(btnAddCountry);
+        panel.add(actionPanel, BorderLayout.SOUTH);
+
+        treeCountries.addTreeSelectionListener(e -> {
+            DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) treeCountries.getLastSelectedPathComponent();
+            boolean isStation = selectedNode != null && selectedNode.getUserObject() instanceof RadioStation;
+            btnPlayCountry.setEnabled(isStation);
+            btnAddCountry.setEnabled(isStation);
+        });
+
+        treeCountries.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) treeCountries.getLastSelectedPathComponent();
+                    if (selectedNode != null && selectedNode.getUserObject() instanceof RadioStation station) {
+                        playStation(station);
+                    }
+                }
+                
+                if (SwingUtilities.isRightMouseButton(e)) {
+                    int row = treeCountries.getClosestRowForLocation(e.getX(), e.getY());
+                    if (row != -1) {
+                        treeCountries.setSelectionRow(row);
+                        DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) treeCountries.getLastSelectedPathComponent();
+                        if (selectedNode != null && selectedNode.getUserObject() instanceof RadioStation station) {
+                            showTreePopupMenu(e.getComponent(), e.getX(), e.getY(), station);
+                        }
+                    }
+                }
+            }
+        });
+
+        treeCountries.addTreeExpansionListener(new TreeExpansionListener() {
+            @Override
+            public void treeExpanded(TreeExpansionEvent event) {
+                TreePath path = event.getPath();
+                DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
+                if (node.getUserObject() instanceof CountryNodeUserObject userObj) {
+                    if (node.getChildCount() == 1 && "Lade...".equals(node.getFirstChild().toString())) {
+                        loadCountryStationsAsync(node, userObj.getCountryCode());
+                    }
+                }
+            }
+
+            @Override
+            public void treeCollapsed(TreeExpansionEvent event) {}
+        });
+
+        loadCountriesAsync();
+
+        return panel;
+    }
+
+    private void showTreePopupMenu(Component comp, int x, int y, RadioStation station) {
+        JPopupMenu menu = new JPopupMenu();
+        JMenuItem itemPlay = new JMenuItem("▶ Abspielen");
+        itemPlay.addActionListener(e -> playStation(station));
+        
+        JMenuItem itemAdd = new JMenuItem("⭐ Zu Favoriten hinzufügen");
+        itemAdd.addActionListener(e -> addFavorite(station));
+
+        menu.add(itemPlay);
+        menu.add(itemAdd);
+        menu.show(comp, x, y);
+    }
+
+    private void playSelectedTreeStation() {
+        DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) treeCountries.getLastSelectedPathComponent();
+        if (selectedNode != null && selectedNode.getUserObject() instanceof RadioStation station) {
+            playStation(station);
+        }
+    }
+
+    private void addSelectedTreeStationToFavorites() {
+        DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) treeCountries.getLastSelectedPathComponent();
+        if (selectedNode != null && selectedNode.getUserObject() instanceof RadioStation station) {
+            addFavorite(station);
+        }
+    }
+
+    private void loadCountriesAsync() {
+        Thread.startVirtualThread(() -> {
+            Map<String, Integer> countryCodes = apiClient.getCountryCodes();
+            
+            List<CountryNodeUserObject> sortedList = new ArrayList<>();
+            countryCodes.forEach((code, count) -> {
+                if (code != null && !code.strip().isEmpty() && count != null) {
+                    sortedList.add(new CountryNodeUserObject(code, count));
+                }
+            });
+
+            // Sort alphabetically by country name
+            sortedList.sort((a, b) -> a.getCountryName().compareToIgnoreCase(b.getCountryName()));
+
+            SwingUtilities.invokeLater(() -> {
+                rootCountries.removeAllChildren();
+                for (CountryNodeUserObject nodeObj : sortedList) {
+                    DefaultMutableTreeNode countryNode = new DefaultMutableTreeNode(nodeObj);
+                    countryNode.add(new DefaultMutableTreeNode("Lade..."));
+                    rootCountries.add(countryNode);
+                }
+                modelCountries.reload();
+            });
+        });
+    }
+
+    private void loadCountryStationsAsync(DefaultMutableTreeNode countryNode, String countryCodeValue) {
+        Thread.startVirtualThread(() -> {
+            List<RadioStation> stations = apiClient.getStationsByCountryCode(countryCodeValue, 20);
+            SwingUtilities.invokeLater(() -> {
+                countryNode.removeAllChildren();
+                if (stations.isEmpty()) {
+                    countryNode.add(new DefaultMutableTreeNode("Keine Stationen gefunden"));
+                } else {
+                    for (RadioStation rs : stations) {
+                        countryNode.add(new DefaultMutableTreeNode(rs));
+                    }
+                }
+                modelCountries.nodeStructureChanged(countryNode);
+            });
+        });
+    }
+
+    private static class CountryNodeUserObject {
+        private final String countryCode;
+        private final String countryName;
+        private final int stationCount;
+
+        public CountryNodeUserObject(String countryCode, int stationCount) {
+            this.countryCode = countryCode;
+            this.stationCount = stationCount;
+            // Resolve localized German name using Java's standard Locale class
+            String name = new java.util.Locale("", countryCode).getDisplayCountry(java.util.Locale.GERMAN);
+            if (name == null || name.strip().isEmpty() || name.equals(countryCode)) {
+                name = new java.util.Locale("", countryCode).getDisplayCountry();
+            }
+            this.countryName = (name != null && !name.strip().isEmpty()) ? name : countryCode;
+        }
+
+        public String getCountryCode() {
+            return countryCode;
+        }
+
+        public String getCountryName() {
+            return countryName;
+        }
+
+        public int getStationCount() {
+            return stationCount;
+        }
+
+        @Override
+        public String toString() {
+            return countryName + " (" + stationCount + ")";
+        }
+    }
+
+    private static class CountryTreeCellRenderer extends DefaultTreeCellRenderer {
+        private final Icon radioIcon = EuroIconThemeManager.getIcon("radio");
+        private final Icon folderIcon = EuroIconThemeManager.getIcon("folder");
+
+        @Override
+        public Component getTreeCellRendererComponent(JTree tree, Object value,
+                boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+            super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
+
+            if (value instanceof DefaultMutableTreeNode node) {
+                Object userObj = node.getUserObject();
+                if (userObj instanceof CountryNodeUserObject countryNodeObj) {
+                    Icon flag = FlagIconLoader.getFlagIcon(countryNodeObj.getCountryCode());
+                    if (flag != null) {
+                        setIcon(flag);
+                    } else {
+                        setIcon(folderIcon);
+                    }
+                } else if (userObj instanceof RadioStation) {
+                    setIcon(radioIcon);
+                }
+            }
+            return this;
         }
     }
 
