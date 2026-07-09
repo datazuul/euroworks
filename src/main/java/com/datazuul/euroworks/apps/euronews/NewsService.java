@@ -2,6 +2,7 @@ package com.datazuul.euroworks.apps.euronews;
 
 import java.io.ByteArrayInputStream;
 import java.net.URI;
+import java.net.ProxySelector;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -64,6 +65,7 @@ public class NewsService {
         this.httpClient = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(4))
                 .followRedirects(HttpClient.Redirect.ALWAYS)
+                .proxy(ProxySelector.getDefault())
                 .build();
     }
 
