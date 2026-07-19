@@ -1,0 +1,8 @@
+[
+  { "title": "Der Herr der Ringe", "author": "J.R.R. Tolkien", "url": "https://de.wikipedia.org/wiki/Der_Herr_der_Ringe" },
+  { "title": "Die unendliche Geschichte", "author": "Michael Ende", "url": "https://de.wikipedia.org/wiki/Die_unendliche_Geschichte" },
+  { "title": "Java in a Nutshell", "author": "Benjamin J. Evans", "url": "https://www.oreilly.com/library/view/java-in-a/9781492037248/" },
+  { "title": "EuroWorks Handbuch", "author": "Ralf", "url": "https://github.com/datazuul/euroworks" },
+  { "title": "Die Drei ??? und das Riff der Haie", "author": "Robert Arthur", "url": "https://de.wikipedia.org/wiki/Die_drei_%3F%3F%3F" },
+  { "title": "Der Hobbit", "author": "J.R.R. Tolkien", "url": "https://de.wikipedia.org/wiki/Der_Hobbit" }
+]

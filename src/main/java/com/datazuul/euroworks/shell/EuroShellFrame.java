@@ -19,6 +19,15 @@ import com.datazuul.euroworks.screensavers.EuroStarfield;
 import com.datazuul.euroworks.games.EuroMines;
 import com.datazuul.euroworks.games.EuroBreakout;
 import com.datazuul.euroworks.games.EuroInvaders;
+import com.datazuul.euroworks.games.EuroFrogger;
+import com.datazuul.euroworks.games.EuroMissileCommand;
+import com.datazuul.euroworks.games.EuroAsteroids;
+import com.datazuul.euroworks.games.EuroPhoenix;
+import com.datazuul.euroworks.games.EuroQix;
+import com.datazuul.euroworks.games.EuroWorld;
+import com.datazuul.euroworks.games.EuroTetris;
+import com.datazuul.euroworks.games.EuroSpace;
+import com.datazuul.euroworks.games.EuroArtilleryDuel;
 import com.datazuul.euroworks.apps.eurosync.EuroSync;
 import com.datazuul.euroworks.apps.euronotepad.EuroNotepad;
 import com.datazuul.euroworks.apps.eurocommander.EuroCommander;
@@ -80,7 +89,7 @@ public class EuroShellFrame extends JFrame {
         expressMenu.setForeground(new Color(0, 100, 100)); // Special styling for retro branding
 
         String[] apps = { "EuroManager", "EuroCommander", "EuroWrite", "EuroNotepad", "EuroDraw", "EuroCalc", "EuroFile", "EuroDex", "EuroMandelbrot",
-                "EuroPipes", "EuroMaze", "EuroBezier", "EuroStarfield", "EuroMines", "EuroBreakout", "EuroInvaders",
+                "EuroPipes", "EuroMaze", "EuroBezier", "EuroStarfield", "EuroMines", "EuroBreakout", "EuroInvaders", "EuroFrogger", "EuroMissileCommand", "EuroAsteroids", "EuroPhoenix", "EuroQix", "EuroWorld", "EuroTetris", "EuroSpace", "EuroArtilleryDuel",
                 "EuroCDPlayer", "EuroScan", "EuroRadio", "EuroWeb", "EuroTv", "EuroNews", "EuroSync", "EuroPreferences" };
         for (String appName : apps) {
             JMenuItem appItem = new JMenuItem(appName);
@@ -164,6 +173,24 @@ public class EuroShellFrame extends JFrame {
             frame = new EuroBreakout();
         } else if ("EuroInvaders".equals(appName)) {
             frame = new EuroInvaders();
+        } else if ("EuroFrogger".equals(appName)) {
+            frame = new EuroFrogger();
+        } else if ("EuroMissileCommand".equals(appName)) {
+            frame = new EuroMissileCommand();
+        } else if ("EuroAsteroids".equals(appName)) {
+            frame = new EuroAsteroids();
+        } else if ("EuroPhoenix".equals(appName)) {
+            frame = new EuroPhoenix();
+        } else if ("EuroQix".equals(appName)) {
+            frame = new EuroQix();
+        } else if ("EuroWorld".equals(appName)) {
+            frame = new EuroWorld();
+        } else if ("EuroTetris".equals(appName)) {
+            frame = new EuroTetris();
+        } else if ("EuroSpace".equals(appName)) {
+            frame = new EuroSpace();
+        } else if ("EuroArtilleryDuel".equals(appName)) {
+            frame = new EuroArtilleryDuel();
         } else if ("EuroCDPlayer".equals(appName)) {
             frame = new EuroCDPlayer();
         } else if ("EuroScan".equals(appName)) {

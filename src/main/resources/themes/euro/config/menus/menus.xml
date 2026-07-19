@@ -12,6 +12,15 @@
         <Filename>EuroMines.desktop</Filename>
         <Filename>EuroBreakout.desktop</Filename>
         <Filename>EuroInvaders.desktop</Filename>
+        <Filename>EuroFrogger.desktop</Filename>
+        <Filename>EuroMissileCommand.desktop</Filename>
+        <Filename>EuroAsteroids.desktop</Filename>
+        <Filename>EuroPhoenix.desktop</Filename>
+        <Filename>EuroQix.desktop</Filename>
+        <Filename>EuroWorld.desktop</Filename>
+        <Filename>EuroTetris.desktop</Filename>
+        <Filename>EuroSpace.desktop</Filename>
+        <Filename>EuroArtilleryDuel.desktop</Filename>
       </Include>
     </Menu>
     <Menu>

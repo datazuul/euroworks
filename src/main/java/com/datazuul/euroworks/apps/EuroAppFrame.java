@@ -33,6 +33,15 @@ public class EuroAppFrame extends JInternalFrame {
         if (title.contains("news")) return "news";
         if (title.contains("breakout")) return "breakout";
         if (title.contains("invaders")) return "invaders";
+        if (title.contains("frogger")) return "frogger";
+        if (title.contains("missile") || title.contains("command")) return "missilecommand";
+        if (title.contains("asteroids")) return "asteroids";
+        if (title.contains("phoenix")) return "phoenix";
+        if (title.contains("qix")) return "qix";
+        if (title.contains("world")) return "world";
+        if (title.contains("tetris")) return "tetris";
+        if (title.contains("space")) return "space";
+        if (title.contains("artillery")) return "artillery";
         if (title.contains("file")) return "file";
         if (title.contains("dex")) return "dex";
         if (title.contains("mandelbrot")) return "mandelbrot";

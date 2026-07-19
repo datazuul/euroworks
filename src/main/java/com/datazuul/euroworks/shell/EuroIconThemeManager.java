@@ -34,6 +34,15 @@ public class EuroIconThemeManager {
         CANDIDATES.put("generic_app", new String[] { "generic_app", "apps/utilities-terminal", "apps/application-default-icon" });
         CANDIDATES.put("breakout", new String[] { "breakout", "apps/input-gaming", "apps/gnome-breakout" });
         CANDIDATES.put("invaders", new String[] { "invaders", "apps/input-gaming", "apps/space-invaders" });
+        CANDIDATES.put("frogger", new String[] { "frogger", "apps/input-gaming", "apps/gnome-frogger" });
+        CANDIDATES.put("missilecommand", new String[] { "missilecommand", "apps/input-gaming" });
+        CANDIDATES.put("asteroids", new String[] { "asteroids", "apps/input-gaming" });
+        CANDIDATES.put("phoenix", new String[] { "phoenix", "apps/input-gaming" });
+        CANDIDATES.put("qix", new String[] { "qix", "apps/input-gaming" });
+        CANDIDATES.put("world", new String[] { "world", "apps/preferences-desktop-wallpaper" });
+        CANDIDATES.put("tetris", new String[] { "tetris", "apps/input-gaming" });
+        CANDIDATES.put("space", new String[] { "space", "apps/preferences-desktop-screensaver" });
+        CANDIDATES.put("artillery", new String[] { "artillery", "apps/input-gaming" });
         CANDIDATES.put("file", new String[] { "file", "apps/system-file-manager", "places/folder" });
         CANDIDATES.put("dex", new String[] { "dex", "apps/office-address-book", "apps/accessories-dictionary" });
         CANDIDATES.put("mandelbrot", new String[] { "mandelbrot", "apps/preferences-desktop-wallpaper", "apps/accessories-calculator" });

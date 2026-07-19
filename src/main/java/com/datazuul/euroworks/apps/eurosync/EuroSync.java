@@ -34,6 +34,13 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import java.awt.event.KeyEvent;
+import java.net.URL;
+import javax.swing.JEditorPane;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -139,6 +146,9 @@ public class EuroSync extends EuroAppFrame {
         glass.setOpaque(false);
         glass.addMouseListener(new java.awt.event.MouseAdapter() {});
         setGlassPane(glass);
+
+        // Set up application menu bar
+        setupMenuBar();
     }
 
     private void blockWindow() {
@@ -274,6 +284,20 @@ public class EuroSync extends EuroAppFrame {
             cb.setBackground(RETRO_BG);
         }
 
+        // Set help tooltips
+        chkPreserveTimestamps.setToolTipText("Kopiert die Änderungszeitpunkte der Quelldateien auf die Zieldateien. Dringend empfohlen für inkrementelle Backups.");
+        chkPreservePermissions.setToolTipText("Übernimmt Lese-, Schreib- und Ausführungsrechte der Quelldateien auf das Ziel (erfordert kompatibles Dateisystem).");
+        chkPreserveOwner.setToolTipText("Versucht, den Dateibesitzer auf dem Zielsystem beizubehalten (erfordert meist Admin-Rechte).");
+        chkPreserveGroup.setToolTipText("Versucht, die Dateigruppe auf dem Zielsystem beizubehalten.");
+        chkDeleteOnDestination.setToolTipText("Löscht Dateien im Zielverzeichnis, die in der Quelle nicht mehr vorhanden sind. Macht das Ziel zu einer exakten Kopie.");
+        chkDontLeaveFilesystem.setToolTipText("Verhindert das Überschreiten von Dateisystemgrenzen (z. B. gemountete Partitionen/Netzlaufwerke).");
+        chkVerbose.setToolTipText("Gibt detaillierte Informationen über jeden einzelnen Vergleich und Kopiervorgang im Logfenster aus.");
+        chkShowProgress.setToolTipText("Zeigt den aktuellen Fortschritt und die geschätzte Restzeit während des Kopiervorgangs an.");
+        chkIgnoreExisting.setToolTipText("Überspringt das Kopieren von Dateien, die im Ziel bereits existieren (unabhängig von Alter/Größe).");
+        chkSizeOnly.setToolTipText("Vergleicht Dateien ausschließlich anhand ihrer Größe. Unterschiede im Änderungsdatum werden ignoriert.");
+        chkSkipNewer.setToolTipText("Überspringt Dateien im Ziel, falls diese ein neuereres Änderungsdatum haben als die entsprechende Quelldatei.");
+        chkWindowsMode.setToolTipText("Toleriert geringfügige Zeitunterschiede (bis zu 2s) zwischen FAT- und NTFS-Dateisystemen und überspringt Unix-Rechte-Fehler.");
+
         checksPanel.add(chkPreserveTimestamps);
         checksPanel.add(chkPreservePermissions);
         checksPanel.add(chkPreserveOwner);
@@ -293,6 +317,7 @@ public class EuroSync extends EuroAppFrame {
         notesPanel.setBackground(RETRO_BG);
         notesPanel.add(new JLabel("Notes:"), BorderLayout.WEST);
         txtNotes = new JTextField();
+        txtNotes.setToolTipText("Optionale Bemerkungen zu dieser Sitzung.");
         notesPanel.add(txtNotes, BorderLayout.CENTER);
         tabStandard.add(notesPanel, BorderLayout.SOUTH);
 
@@ -318,6 +343,12 @@ public class EuroSync extends EuroAppFrame {
             cb.setBackground(RETRO_BG);
         }
 
+        chkCompression.setToolTipText("Komprimiert Daten während der Übertragung (nützlich bei langsamen Netzwerkverbindungen).");
+        chkKeepPartial.setToolTipText("Behält teilweise übertragene Dateien bei einem Abbruch bei, um sie später fortzusetzen.");
+        chkCopySymlinks.setToolTipText("Kopiert symbolische Links als Links/Verweise, statt die Zieldateien selbst zu kopieren.");
+        chkFollowSymlinks.setToolTipText("Folgt symbolischen Links und kopiert die echten Dateien/Verzeichnisse, auf die sie verweisen.");
+        chkSparseFiles.setToolTipText("Optimiert die Übertragung von Dateien mit großen leeren Datenblöcken (Sparse-Dateien), um Speicherplatz zu sparen.");
+
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.weightx = 1.0;
@@ -338,6 +369,7 @@ public class EuroSync extends EuroAppFrame {
         gbc.gridy = 6;
         gbc.insets = new Insets(2, 4, 4, 4);
         txtAdditionalOptions = new JTextField();
+        txtAdditionalOptions.setToolTipText("Zusätzliche Optionen und Parameter, die direkt an die Synchronisations-Engine übergeben werden.");
         tabAdvanced.add(txtAdditionalOptions, gbc);
 
         // spacer
@@ -363,10 +395,12 @@ public class EuroSync extends EuroAppFrame {
         tabExtra.add(new JLabel("Vorher auszuführender Befehl:"), gbcEx);
         gbcEx.gridy = 1;
         txtPreCommand = new JTextField();
+        txtPreCommand.setToolTipText("Ein Systembefehl oder Skript, das vor dem Starten der Synchronisation ausgeführt wird.");
         tabExtra.add(txtPreCommand, gbcEx);
         gbcEx.gridy = 2;
         chkHaltOnPreFailure = new JCheckBox("Bei Fehler abbrechen");
         chkHaltOnPreFailure.setBackground(RETRO_BG);
+        chkHaltOnPreFailure.setToolTipText("Bricht die Synchronisation sofort ab, wenn der Vorher-Befehl fehlschlägt (Rückgabewert ungleich 0).");
         tabExtra.add(chkHaltOnPreFailure, gbcEx);
 
         // Post Command
@@ -376,10 +410,12 @@ public class EuroSync extends EuroAppFrame {
         gbcEx.gridy = 4;
         gbcEx.insets = new Insets(4, 4, 4, 4);
         txtPostCommand = new JTextField();
+        txtPostCommand.setToolTipText("Ein Systembefehl oder Skript, das nach erfolgreichem Abschluss der Synchronisation ausgeführt wird.");
         tabExtra.add(txtPostCommand, gbcEx);
         gbcEx.gridy = 5;
         chkSkipPostOnFailure = new JCheckBox("Bei Fehler nicht ausführen");
         chkSkipPostOnFailure.setBackground(RETRO_BG);
+        chkSkipPostOnFailure.setToolTipText("Führt den Nachher-Befehl nicht aus, wenn bei der Synchronisation Fehler aufgetreten sind.");
         tabExtra.add(chkSkipPostOnFailure, gbcEx);
 
         // spacer
@@ -903,6 +939,76 @@ public class EuroSync extends EuroAppFrame {
             } else {
                 dispose();
             }
+        }
+    }
+
+    // ── Menu Bar & Help Dialog ──────────────────────────────────────────────
+    private void setupMenuBar() {
+        JMenuBar menuBar = new JMenuBar();
+        JMenu helpMenu = new JMenu("Hilfe");
+        helpMenu.setMnemonic(KeyEvent.VK_H);
+
+        JMenuItem helpItem = new JMenuItem("EuroSync-Hilfe...", KeyEvent.VK_F);
+        helpItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0));
+        helpItem.addActionListener(e -> showHelpDialog());
+        helpMenu.add(helpItem);
+
+        menuBar.add(helpMenu);
+        setJMenuBar(menuBar);
+    }
+
+    private void showHelpDialog() {
+        Frame parent = (Frame) SwingUtilities.getWindowAncestor(this);
+        blockWindow();
+        HelpDialog dialog = new HelpDialog(parent);
+        dialog.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                unblockWindow();
+            }
+        });
+        dialog.setVisible(true);
+    }
+
+    private static class HelpDialog extends JDialog {
+        public HelpDialog(Frame owner) {
+            super(owner, "EuroSync Hilfe / Dokumentation", false);
+            setSize(600, 500);
+            setMinimumSize(new Dimension(450, 400));
+            setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+            setLocationRelativeTo(owner);
+
+            JPanel contentPanel = new JPanel(new BorderLayout(5, 5));
+            contentPanel.setBackground(RETRO_BG);
+            contentPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+            JEditorPane helpPane = new JEditorPane();
+            helpPane.setEditable(false);
+            helpPane.setContentType("text/html");
+
+            try {
+                URL helpUrl = EuroSync.class.getResource("/apps/eurosync/help.html");
+                if (helpUrl != null) {
+                    helpPane.setPage(helpUrl);
+                } else {
+                    helpPane.setText("<html><body style='font-family:sans-serif;'><h2>Dokumentation nicht gefunden.</h2></body></html>");
+                }
+            } catch (Exception ex) {
+                helpPane.setText("<html><body style='font-family:sans-serif;'><h2>Fehler beim Laden der Dokumentation:</h2><p>" + ex.getMessage() + "</p></body></html>");
+            }
+
+            JScrollPane scrollPane = new JScrollPane(helpPane);
+            contentPanel.add(scrollPane, BorderLayout.CENTER);
+
+            // Add close button at the bottom
+            JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+            btnPanel.setOpaque(false);
+            JButton btnClose = new JButton("Schließen");
+            btnClose.addActionListener(e -> dispose());
+            btnPanel.add(btnClose);
+            contentPanel.add(btnPanel, BorderLayout.SOUTH);
+
+            setContentPane(contentPanel);
         }
     }
 }

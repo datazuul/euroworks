@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+body {
+    font-family: "Tahoma", "Arial", sans-serif;
+    font-size: 12px;
+    background-color: #D4D0C8;
+    color: #000000;
+    margin: 12px;
+    padding: 0;
+}
+h1 {
+    font-size: 15px;
+    color: #000080;
+    margin-top: 0px;
+    margin-bottom: 6px;
+    padding-bottom: 3px;
+    border-bottom: 2px solid #808080;
+}
+h2 {
+    font-size: 13px;
+    color: #000080;
+    margin-top: 16px;
+    margin-bottom: 6px;
+    border-bottom: 1px solid #A0A0A0;
+}
+h3 {
+    font-size: 12px;
+    color: #000000;
+    margin-top: 12px;
+    margin-bottom: 4px;
+    font-weight: bold;
+}
+p {
+    margin-top: 2px;
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+ol, ul {
+    margin-top: 4px;
+    margin-bottom: 8px;
+    padding-left: 24px;
+}
+li {
+    margin-bottom: 5px;
+}
+.option-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 6px;
+    margin-bottom: 12px;
+}
+.option-table th {
+    background-color: #808080;
+    color: #FFFFFF;
+    text-align: left;
+    padding: 5px 8px;
+    font-size: 12px;
+    font-weight: bold;
+}
+.option-table td {
+    padding: 6px 8px;
+    border-bottom: 1px solid #D4D0C8;
+    background-color: #EBE9E4;
+    font-size: 12px;
+    vertical-align: top;
+}
+.strong-term {
+    font-weight: bold;
+    color: #000000;
+}
+</style>
+</head>
+<body>
+<h1>EuroSync Benutzerhandbuch</h1>
+<p>EuroSync ist ein grafisches Werkzeug zur Synchronisation von Dateien und Ordnern für die EuroWorks-Desktopumgebung. Es ermöglicht das Abgleichen von Quell- und Zielverzeichnissen nach flexiblen Regeln.</p>
+
+<h2>Schnellstart</h2>
+<ol>
+  <li>Wählen Sie eine vorhandene <strong>Sitzung (Sitzungen)</strong> aus oder erstellen Sie eine neue über die Schaltfläche <i>+ Hinzufügen</i>.</li>
+  <li>Fügen Sie in der Tabelle ein oder mehrere <strong>Quell- und Zielverzeichnispaare</strong> hinzu.</li>
+  <li>Konfigurieren Sie die Synchronisationsregeln in den Reitern (Standardoptionen, Erweiterte Optionen, Zusatzoptionen).</li>
+  <li>Klicken Sie auf <strong>Simulation starten</strong>, um den Vorgang zu testen, ohne Dateien auf dem Datenträger zu ändern.</li>
+  <li>Klicken Sie auf <strong>Ausführen</strong>, um die tatsächliche Synchronisation durchzuführen.</li>
+</ol>
+
+<h2>Optionen im Detail</h2>
+
+<h3>1. Standardoptionen</h3>
+<table class="option-table">
+  <tr><th width="35%">Option</th><th>Beschreibung</th></tr>
+  <tr><td><span class="strong-term">Zeitstempel erhalten</span></td><td>Kopiert das Änderungsdatum der Quelldateien auf die Zieldateien. Dringend empfohlen für inkrementelle Backups.</td></tr>
+  <tr><td><span class="strong-term">Rechte erhalten</span></td><td>Übernimmt die Lese-, Schreib- und Ausführungsrechte (nur bei kompatiblen Dateisystemen).</td></tr>
+  <tr><td><span class="strong-term">Besitzer erhalten</span></td><td>Versucht, den Dateibesitzer auf dem Zielsystem beizubehalten (erfordert meist Administratorrechte).</td></tr>
+  <tr><td><span class="strong-term">Gruppe erhalten</span></td><td>Versucht, die Dateigruppe auf dem Zielsystem beizubehalten.</td></tr>
+  <tr><td><span class="strong-term">Im Zielverzeichnis löschen</span></td><td>Löscht Dateien im Zielordner, die in der Quelle nicht mehr vorhanden sind (erzeugt ein exaktes Spiegelbild). <strong style="color: #A00000;">Vorsicht beim ersten Ausführen!</strong></td></tr>
+  <tr><td><span class="strong-term">Dateisystem nicht verlassen</span></td><td>Verhindert das Überschreiten von Partitions- oder Mountgrenzen bei der Suche nach Quelldateien.</td></tr>
+  <tr><td><span class="strong-term">Ausführliche Meldungen</span></td><td>Gibt detaillierte Protokolle zu jedem überprüften Element im Logfenster aus.</td></tr>
+  <tr><td><span class="strong-term">Fortschritt anzeigen</span></td><td>Zeigt Dateianzahl, prozentualen Fortschritt und Fortschrittsbalken während des Laufs an.</td></tr>
+  <tr><td><span class="strong-term">Bestehende ignorieren</span></td><td>Kopiert nur Dateien, die auf dem Ziel noch gar nicht existieren (bereits vorhandene werden übersprungen).</td></tr>
+  <tr><td><span class="strong-term">Nur Dateigröße vergleichen</span></td><td>Ignoriert Zeitstempel und kopiert Dateien nur dann, wenn sich ihre Dateigröße unterscheidet.</td></tr>
+  <tr><td><span class="strong-term">Neuere überspringen</span></td><td>Überschreibt keine Dateien im Ziel, die neuer sind als die entsprechenden Quelldateien.</td></tr>
+  <tr><td><span class="strong-term">Windows-Kompatibilitätsmodus</span></td><td>Toleriert Zeitunterschiede von bis zu 2 Sekunden (behebt Probleme bei NTFS/FAT-Kopien) und ignoriert Unix-Berechtigungsfehler.</td></tr>
+</table>
+
+<h3>2. Erweiterte Optionen</h3>
+<table class="option-table">
+  <tr><th width="35%">Option</th><th>Beschreibung</th></tr>
+  <tr><td><span class="strong-term">Kompression</span></td><td>Komprimiert die Daten während der Übertragung (nützlich bei langsamen Leitungen).</td></tr>
+  <tr><td><span class="strong-term">Teilweise übertragenen Dateien behalten</span></td><td>Behält unvollständige Dateien bei abgebrochenen Übertragungen, um sie später fortzusetzen.</td></tr>
+  <tr><td><span class="strong-term">Kopiere symbolische Links als Links</span></td><td>Kopiert symbolische Links als Links anstatt der eigentlichen Zieldatei.</td></tr>
+  <tr><td><span class="strong-term">Links folgen</span></td><td>Löst symbolische Links auf und kopiert die echten Dateien/Ordner dahinter.</td></tr>
+  <tr><td><span class="strong-term">Sparsame Dateien</span></td><td>Optimiert das Schreiben von Dateilücken (Sparse-Dateien), um Speicherplatz zu sparen.</td></tr>
+  <tr><td><span class="strong-term">Zusätzliche Optionen</span></td><td>Ermöglicht das Angeben von beliebigen zusätzlichen Kommandozeilenparametern.</td></tr>
+</table>
+
+<h3>3. Zusatzoptionen (Hooks)</h3>
+<table class="option-table">
+  <tr><th width="35%">Option</th><th>Beschreibung</th></tr>
+  <tr><td><span class="strong-term">Vorher auszuführender Befehl</span></td><td>Ein Systembefehl oder Skript, das vor der Synchronisation ausgeführt wird.</td></tr>
+  <tr><td><span class="strong-term">Bei Fehler abbrechen</span></td><td>Stoppt die Synchronisation komplett, wenn der Vorher-Befehl fehlschlägt.</td></tr>
+  <tr><td><span class="strong-term">Nachher auszuführender Befehl</span></td><td>Ein Systembefehl oder Skript, das nach der Synchronisation ausgeführt wird.</td></tr>
+  <tr><td><span class="strong-term">Bei Fehler nicht ausführen</span></td><td>Überspringt den Nachher-Befehl, wenn die Synchronisation Fehler hatte oder abgebrochen wurde.</td></tr>
+</table>
+
+</body>
+</html>
