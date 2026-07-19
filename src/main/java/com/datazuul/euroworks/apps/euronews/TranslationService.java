@@ -3,6 +3,7 @@ package com.datazuul.euroworks.apps.euronews;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.net.ProxySelector;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -24,6 +25,7 @@ public class TranslationService {
 
         HttpClient client = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(5))
+            .proxy(ProxySelector.getDefault())
                 .build();
 
         HttpRequest request = HttpRequest.newBuilder()

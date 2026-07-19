@@ -1,6 +1,7 @@
 package com.datazuul.euroworks.apps.euroradio;
 
 import java.net.URI;
+import java.net.ProxySelector;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -52,6 +53,7 @@ public class RadioBrowserClient {
         this.resolvedBaseUrl = discoveredUrl;
         this.httpClient = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(5))
+            .proxy(ProxySelector.getDefault())
                 .build();
 
         this.radioBrowser = new RadioBrowser(

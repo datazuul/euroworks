@@ -1,6 +1,7 @@
 package com.datazuul.euroworks.apps.eurotv;
 
 import java.net.URI;
+import java.net.ProxySelector;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -13,6 +14,7 @@ public class ArdUrlResolver {
     private static final HttpClient CLIENT = HttpClient.newBuilder()
             .followRedirects(HttpClient.Redirect.ALWAYS)
             .connectTimeout(Duration.ofSeconds(10))
+            .proxy(ProxySelector.getDefault())
             .build();
 
     public static String resolveStreamUrl(String url) {

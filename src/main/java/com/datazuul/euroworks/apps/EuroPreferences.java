@@ -18,8 +18,10 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDesktopPane;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
+import javax.swing.JTextField;
 import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
@@ -129,9 +131,14 @@ public class EuroPreferences extends EuroAppFrame {
     private final JComboBox<String> screensaverComboBox;
     private final JSpinner timeoutSpinner;
 
+    // Network Card components
+    private final JCheckBox proxyEnabledCheckBox;
+    private final JTextField proxyHostField;
+    private final JSpinner proxyPortSpinner;
+
     public EuroPreferences() {
         super("EuroPreferences (System Settings)");
-        setSize(520, 380);
+        setSize(580, 420);
 
         // Main Layout split: Sidebar (left) and Cards (right)
         JPanel sidebarPanel = new JPanel(new GridLayout(0, 1, 5, 5));
@@ -142,12 +149,14 @@ public class EuroPreferences extends EuroAppFrame {
         JButton btnSound = new JButton("Sound");
         JButton btnScreensaver = new JButton("Screensaver");
         JButton btnSystem = new JButton("System");
+        JButton btnNetwork = new JButton("Network");
 
         sidebarPanel.add(btnDisplay);
         sidebarPanel.add(btnMouse);
         sidebarPanel.add(btnSound);
         sidebarPanel.add(btnScreensaver);
         sidebarPanel.add(btnSystem);
+        sidebarPanel.add(btnNetwork);
 
         // Cards Panel Setup
         cardLayout = new CardLayout();
@@ -201,12 +210,55 @@ public class EuroPreferences extends EuroAppFrame {
         gbc.fill = GridBagConstraints.BOTH;
         displayCard.add(Box.createVerticalGlue(), gbc);
 
-        // 2. Mouse Card
+        // 2. Network Card
+        JPanel networkCard = new JPanel(new GridBagLayout());
+        networkCard.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+
+        gbc = new GridBagConstraints();
+        gbc.insets = new Insets(8, 8, 8, 8);
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+        proxyEnabledCheckBox = new JCheckBox("Proxy aktivieren");
+        proxyEnabledCheckBox.addActionListener(e -> updateProxyFieldState());
+        networkCard.add(proxyEnabledCheckBox, gbc);
+
+        gbc.gridy = 1;
+        gbc.gridwidth = 1;
+        gbc.weightx = 0.0;
+        networkCard.add(new JLabel("Proxy-IP Adresse:"), gbc);
+
+        gbc.gridx = 1;
+        gbc.weightx = 1.0;
+        proxyHostField = new JTextField();
+        networkCard.add(proxyHostField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.weightx = 0.0;
+        networkCard.add(new JLabel("Port:"), gbc);
+
+        gbc.gridx = 1;
+        gbc.weightx = 1.0;
+        SpinnerModel proxyPortModel = new SpinnerNumberModel(8080, 1, 65535, 1);
+        proxyPortSpinner = new JSpinner(proxyPortModel);
+        networkCard.add(proxyPortSpinner, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.gridwidth = 2;
+        gbc.weighty = 1.0;
+        networkCard.add(Box.createVerticalGlue(), gbc);
+
+        // 3. Mouse Card
         JPanel mouseCard = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
         outlineDragCheckBox = new JCheckBox("Use Outline Window Dragging", true);
         mouseCard.add(outlineDragCheckBox);
 
-        // 3. Sound Card
+        // 4. Sound Card
         JPanel soundCard = new JPanel(new GridBagLayout());
         soundCard.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         gbc = new GridBagConstraints();
@@ -223,7 +275,7 @@ public class EuroPreferences extends EuroAppFrame {
         gbc.fill = GridBagConstraints.NONE;
         soundCard.add(testBeepButton, gbc);
 
-        // 4. Screensaver Card
+        // 5. Screensaver Card
         JPanel screensaverCard = new JPanel(new GridBagLayout());
         screensaverCard.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
@@ -267,7 +319,7 @@ public class EuroPreferences extends EuroAppFrame {
         gbc.weighty = 1.0;
         screensaverCard.add(Box.createVerticalGlue(), gbc);
 
-        // 5. System Card
+        // 6. System Card
         JPanel systemCard = new JPanel(new GridLayout(0, 1, 5, 5));
         systemCard.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
@@ -283,6 +335,7 @@ public class EuroPreferences extends EuroAppFrame {
 
         // Add cards
         cardsPanel.add(displayCard, "DISPLAY");
+        cardsPanel.add(networkCard, "NETWORK");
         cardsPanel.add(mouseCard, "MOUSE");
         cardsPanel.add(soundCard, "SOUND");
         cardsPanel.add(screensaverCard, "SCREENSAVER");
@@ -290,6 +343,7 @@ public class EuroPreferences extends EuroAppFrame {
 
         // Wire category buttons
         btnDisplay.addActionListener(e -> cardLayout.show(cardsPanel, "DISPLAY"));
+        btnNetwork.addActionListener(e -> cardLayout.show(cardsPanel, "NETWORK"));
         btnMouse.addActionListener(e -> cardLayout.show(cardsPanel, "MOUSE"));
         btnSound.addActionListener(e -> cardLayout.show(cardsPanel, "SOUND"));
         btnScreensaver.addActionListener(e -> cardLayout.show(cardsPanel, "SCREENSAVER"));
@@ -328,6 +382,10 @@ public class EuroPreferences extends EuroAppFrame {
         enableScreensaverCheckBox.setSelected(EuroPreferencesStore.isScreensaverEnabled());
         screensaverComboBox.setSelectedItem(EuroPreferencesStore.getScreensaverName());
         timeoutSpinner.setValue(EuroPreferencesStore.getScreensaverTimeout());
+        proxyEnabledCheckBox.setSelected(EuroPreferencesStore.isNetworkProxyEnabled());
+        proxyHostField.setText(EuroPreferencesStore.getNetworkProxyHost());
+        proxyPortSpinner.setValue(EuroPreferencesStore.getNetworkProxyPort());
+        updateProxyFieldState();
 
         // Sync icon theme
         String activeTheme = EuroPreferencesStore.getIconThemeName();
@@ -367,6 +425,14 @@ public class EuroPreferences extends EuroAppFrame {
         boolean enableSaver = enableScreensaverCheckBox.isSelected();
         String saverName = (String) screensaverComboBox.getSelectedItem();
         int saverTimeout = (Integer) timeoutSpinner.getValue();
+        boolean proxyEnabled = proxyEnabledCheckBox.isSelected();
+        String proxyHost = proxyHostField.getText() == null ? "" : proxyHostField.getText().trim();
+        int proxyPort = (Integer) proxyPortSpinner.getValue();
+
+        if (proxyEnabled && proxyHost.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Bitte eine Proxy-IP Adresse angeben.", "Ungültige Netzwerkeinstellung", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
         // Save preferences via store
         EuroPreferencesStore.setDesktopColorIndex(colorIdx);
@@ -375,6 +441,9 @@ public class EuroPreferences extends EuroAppFrame {
         EuroPreferencesStore.setScreensaverEnabled(enableSaver);
         EuroPreferencesStore.setScreensaverName(saverName);
         EuroPreferencesStore.setScreensaverTimeout(saverTimeout);
+        EuroPreferencesStore.setNetworkProxyEnabled(proxyEnabled);
+        EuroPreferencesStore.setNetworkProxyHost(proxyHost);
+        EuroPreferencesStore.setNetworkProxyPort(proxyPort);
 
         int themeIdx = themeComboBox.getSelectedIndex();
         if (themeIdx >= 0 && themeIdx < themeValues.length) {
@@ -407,6 +476,7 @@ public class EuroPreferences extends EuroAppFrame {
                 }
             }
         }
+        EuroPreferencesStore.applyNetworkProxySettings();
         EuroPreferencesStore.save();
 
         // Clear icon cache so new theme is loaded
@@ -439,5 +509,11 @@ public class EuroPreferences extends EuroAppFrame {
             }
             desktop.repaint();
         }
+    }
+
+    private void updateProxyFieldState() {
+        boolean enabled = proxyEnabledCheckBox.isSelected();
+        proxyHostField.setEnabled(enabled);
+        proxyPortSpinner.setEnabled(enabled);
     }
 }
